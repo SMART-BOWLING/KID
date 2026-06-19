@@ -13,7 +13,7 @@
 
         body {
             min-height: 100vh;
-            background: #ffffff;   /* БІЛИЙ ФОН */
+            background: #ffffff;
             font-family: "Arial Rounded MT Bold", "Nunito", "Trebuchet MS", Arial, sans-serif;
             color: #101733;
             padding: 20px;
@@ -22,13 +22,12 @@
         .container {
             max-width: 500px;
             margin: 0 auto;
-            background: transparent;  /* прозорий, щоб не створювати білу підкладку */
+            background: transparent;
             border-radius: 36px;
             padding: 24px 28px 40px;
             position: relative;
         }
 
-        /* —— хмаринки ——— */
         .cloud {
             position: absolute;
             opacity: .72;
@@ -49,7 +48,6 @@
             color: #e3f1fe;
         }
 
-        /* —— логотип ——— */
         .logo {
             position: relative;
             width: max-content;
@@ -74,28 +72,26 @@
             filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .12));
         }
 
-        /* —— панелі ——— */
         .panel {
             border: 1.5px solid;
             border-radius: 27px;
             padding: 23px 17px 21px;
-            background: #ffffff;       /* білий фон панелей, але це потрібно для контрасту */
+            background: #ffffff;
             box-shadow: 0 8px 20px rgba(35, 65, 104, .08);
         }
         .panel + .panel {
             margin-top: 14px;
         }
         .panel.active {
-            background: #f5fadf;       /* світло-зелений, але не білий */
+            background: #f5fadf;
             border-color: #e0ecad;
         }
         .panel.next {
-            background: #edf7ff;       /* світло-блакитний */
+            background: #edf7ff;
             border-color: #c8e4f7;
             padding: 23px 12px 21px;
         }
 
-        /* —— часова стрічка ——— */
         .time-row {
             display: flex;
             align-items: center;
@@ -128,7 +124,6 @@
             text-transform: uppercase;
         }
 
-        /* —— сітки станцій ——— */
         .grid-current {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -143,12 +138,11 @@
             margin-top: 5px;
         }
 
-        /* —— картки станцій ——— */
         .station {
             display: grid;
             place-items: center;
             min-width: 0;
-            background: #ffffff;           /* білий фон самої картки */
+            background: #ffffff;
             border: 1.5px solid rgba(183, 205, 141, .48);
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(35, 65, 104, .05);
@@ -173,7 +167,6 @@
             border-color: rgba(174, 210, 235, .7);
         }
 
-        /* —— бейджі ——— */
         .badge {
             width: 83px;
             height: 83px;
@@ -200,6 +193,14 @@
             margin: 0;
             flex: 0 0 auto;
             font-size: 40px;
+        }
+        
+        /* Стиль для логотипа как изображения */
+        .badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
         }
 
         .station-name {
@@ -230,24 +231,11 @@
             font-weight: 1000;
         }
 
-        /* —— кольорові бейджі ——— */
-        .mic { background: linear-gradient(145deg, #e2c9fb, #fff4d0); }
-        .build { background: #fff2b6; }
-        .theatre { background: #ffd5df; }
-        .silpo { background: #d9f5ff; font-size: 34px; color: #f07b24; font-weight: 1000; text-shadow: 0 2px #fff; }
-        .tv { background: #dff6ff; }
-        .eva { background: #eff8e5; color: #6ab43b; font-size: 31px; font-style: italic; font-weight: 1000; }
-        .eva::first-letter { color: #f27521; }
-        .trip { background: #fff2c8; }
-        .plane { background: #dff5ff; }
-        .dr { background: #efe2ff; color: #7a32bf; font-size: 30px; font-weight: 1000; }
-
         .badge-default { background: #f0f0f0; }
         .badge-default-2 { background: #e8f0fe; }
         .badge-default-3 { background: #fce8e8; }
         .badge-default-4 { background: #e8fce8; }
 
-        /* —— завантаження / помилки ——— */
         .loading-state {
             text-align: center;
             padding: 40px 20px;
@@ -303,7 +291,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- хмаринки (залишились для атмосфери) -->
         <svg class="cloud cloud-left" viewBox="0 0 96 48" aria-hidden="true">
             <path fill="currentColor" d="M16 38h64c8 0 14-6 14-13s-6-13-14-13c-2 0-4 1-6 1C70 5 62 0 52 0 40 0 31 7 28 18c-3-2-7-3-11-3C8 15 1 22 1 31s7 7 15 7z"/>
         </svg>
@@ -326,10 +313,10 @@
         </div>
     </div>
 
-    <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbFBly9f3hNU8Dq-HFKhcAfpBFsrQ5_x8NvG4-25mHOUvTerMlII9ewB2aEuTFgjN3Mg/exec';
 
-        // --- Функция получения данных ---
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZfa0njEtfXFJLWfH4p23Ge7oBtbMkDl5C1fQ3ORH8wB0Sy4l-aAq1hLP1DbIznkknMA/exec';
+
         async function fetchSchedule() {
             try {
                 const response = await fetch(SCRIPT_URL);
@@ -343,7 +330,6 @@
             }
         }
 
-        // --- Получение киевского времени ---
         function getKyivTime() {
             const now = new Date();
             const formatter = new Intl.DateTimeFormat('uk-UA', {
@@ -361,7 +347,6 @@
             return date;
         }
 
-        // --- Парсинг времени в минуты ---
         function parseTimeToMinutes(timeStr) {
             if (!timeStr) return -1;
             const parts = timeStr.split(':');
@@ -375,7 +360,6 @@
             return -1;
         }
 
-        // --- Определение статуса станции ---
         function getStationStatus(timeFrom, timeTo, currentTime) {
             const from = parseTimeToMinutes(timeFrom);
             const to = parseTimeToMinutes(timeTo);
@@ -394,7 +378,6 @@
             return 'past';
         }
 
-        // --- Получение эмодзи и класса для станции ---
         function getStationStyle(stationName) {
             const name = stationName.toUpperCase();
             const map = {
@@ -410,7 +393,7 @@
                 'ТУРАГЕНЦИЯ': { emoji: '🌍🧳', cls: 'trip' },
                 'ЛІТАК': { emoji: '✈️', cls: 'plane' },
                 'САМОЛЕТ': { emoji: '✈️', cls: 'plane' },
-                'ДР': { emoji: 'ДР', cls: 'dr' }
+                'ДР': { emoji: '🎂', cls: 'dr' }
             };
             
             for (const [key, value] of Object.entries(map)) {
@@ -427,7 +410,6 @@
             };
         }
 
-        // --- Рендеринг расписания ---
         function renderSchedule(data) {
             const container = document.getElementById('scheduleContainer');
             
@@ -458,7 +440,6 @@
                 minute: '2-digit'
             });
 
-            // Фильтруем: только активные и будущие
             const filteredRows = data.rows.filter(row => {
                 const status = getStationStatus(row.timeFrom, row.timeTo, kyivTime);
                 return status === 'active' || status === 'future';
@@ -475,7 +456,6 @@
                 return;
             }
 
-            // Группируем по времени
             const groups = {};
             filteredRows.forEach(row => {
                 const key = `${row.timeFrom}–${row.timeTo}`;
@@ -517,8 +497,9 @@
                     const displayStations = stationItems.slice(0, 4);
                     displayStations.forEach(st => {
                         const style = getStationStyle(st.station);
+                        const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
                         html += `<article class="station big">`;
-                        html += `<div class="badge ${style.cls}">${style.emoji}</div>`;
+                        html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                         html += `<div class="station-name">${st.station}</div>`;
                         html += `</article>`;
                     });
@@ -528,8 +509,9 @@
                     const displayStations = stationItems.slice(0, 8);
                     displayStations.forEach(st => {
                         const style = getStationStyle(st.station);
+                        const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
                         html += `<article class="station small">`;
-                        html += `<div class="badge ${style.cls}">${style.emoji}</div>`;
+                        html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                         html += `<div class="station-name">${st.station}</div>`;
                         html += `</article>`;
                     });
@@ -538,9 +520,10 @@
 
                 if (eventRow) {
                     const style = getStationStyle(eventRow.station);
+                    const logoHtml = eventRow.logo ? `<img src="${eventRow.logo}" alt="${eventRow.station}">` : style.emoji;
                     html += `<div class="grid-next">`;
                     html += `<article class="station wide">`;
-                    html += `<div class="badge ${style.cls}">${style.emoji}</div>`;
+                    html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     html += `<div class="station-name">${eventRow.station}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
                     html += `</article>`;
                     html += `</div>`;
@@ -553,7 +536,6 @@
             container.innerHTML = html;
         }
 
-        // --- Инициализация ---
         async function init() {
             const container = document.getElementById('scheduleContainer');
             container.innerHTML = `
@@ -566,14 +548,12 @@
             const data = await fetchSchedule();
             renderSchedule(data);
             
-            // Обновление данных каждые 30 секунд
             setInterval(async () => {
                 const data = await fetchSchedule();
                 renderSchedule(data);
             }, 30000);
         }
 
-        // Запуск
         init();
     </script>
 </body>
