@@ -1,234 +1,258 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
-}
-
-body{
-    background:#ffffff;
-    padding:20px;
-    max-width:450px;
-    margin:auto;
-}
-
-.schedule-card{
-    border-radius:32px;
-    padding:24px;
-    margin-bottom:20px;
-    border:1px solid rgba(0,0,0,.06);
-}
-
-.current{
-    background:#f3f8e8;
-}
-
-.next{
-    background:#eef5ff;
-}
-
-.time{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    font-size:34px;
-    font-weight:700;
-    margin-bottom:15px;
-}
-
-.current .time{
-    color:#5c8b2d;
-}
-
-.next .time{
-    color:#3f78c2;
-}
-
-.subtitle{
-    font-size:18px;
-    font-weight:700;
-    text-transform:uppercase;
-    margin-bottom:20px;
-}
-
-.current .subtitle{
-    color:#5c8b2d;
-}
-
-.next .subtitle{
-    color:#3f78c2;
-}
-
-.grid-2{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:14px;
-}
-
-.grid-4{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:10px;
-}
-
-.station{
-    background:white;
-    border-radius:22px;
-    padding:16px;
-    border:1px solid #e8edf3;
-    text-align:center;
-}
-
-.station.small{
-    padding:12px 8px;
-}
-
-.placeholder{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    border:2px dashed #d5dce5;
-    background:#f8fafc;
-    margin:0 auto 12px;
-}
-
-.small .placeholder{
-    width:55px;
-    height:55px;
-    margin-bottom:10px;
-}
-
-.station-title{
-    font-size:20px;
-    font-weight:700;
-}
-
-.small .station-title{
-    font-size:13px;
-}
-
-.event{
-    margin-top:14px;
-    background:white;
-    border-radius:22px;
-    padding:14px;
-    display:flex;
-    align-items:center;
-    gap:14px;
-}
-
-.event-icon{
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#f3ebff;
-    border:2px dashed #d8c6ff;
-    flex-shrink:0;
-}
-
-.event-title{
-    color:#7c3aed;
-    font-size:28px;
-    font-weight:700;
-}
-
-.event-time{
-    color:#7c3aed;
-    font-weight:600;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Расписание станций</title>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+        body { background:#f5f7fa; padding:20px; max-width:450px; margin:auto; }
+        .container { background:white; border-radius:16px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+        h1 { font-size:20px; margin-bottom:16px; color:#1a1a2e; }
+        .schedule-card { border-radius:16px; padding:20px; margin-bottom:16px; border:1px solid #e0e0e0; }
+        .current { background:#f3f8e8; border-color:#8bc34a; }
+        .next { background:#eef5ff; border-color:#64b5f6; }
+        .past { background:#f5f5f5; border-color:#ddd; opacity:0.5; display:none; }
+        .time { font-size:28px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        .current .time { color:#5c8b2d; }
+        .next .time { color:#3f78c2; }
+        .subtitle { font-size:14px; font-weight:600; margin-bottom:16px; }
+        .current .subtitle { color:#5c8b2d; }
+        .next .subtitle { color:#3f78c2; }
+        .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+        .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .station { background:white; border-radius:12px; padding:12px; text-align:center; border:1px solid #e8edf3; }
+        .station.small { padding:8px 6px; }
+        .placeholder { width:50px; height:50px; border-radius:50%; border:2px dashed #d5cce5; background:#f8fafc; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; font-size:20px; color:#b0c0d0; }
+        .small .placeholder { width:40px; height:40px; font-size:16px; margin-bottom:6px; }
+        .station-title { font-size:16px; font-weight:600; }
+        .small .station-title { font-size:12px; }
+        .event { margin-top:12px; background:white; border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px; border:1px solid #e8edf3; }
+        .event-icon { width:50px; height:50px; border-radius:50%; background:#f3ebff; border:2px dashed #d8c6ff; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:24px; }
+        .event-title { font-size:20px; font-weight:700; color:#7c3aed; }
+        .event-time { color:#7c3aed; font-weight:600; }
+        .badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:600; }
+        .badge-active { background:#8bc34a; color:white; }
+        .badge-future { background:#64b5f6; color:white; }
+        .status { padding:12px; border-radius:8px; margin-bottom:16px; font-weight:600; text-align:center; }
+        .status.loading { background:#e3f2fd; color:#0d47a1; }
+        .status.success { background:#e8f5e9; color:#1b5e20; }
+        .status.error { background:#ffebee; color:#b71c1c; }
+        .status.info { background:#fff3e0; color:#e65100; }
+        .update-time { text-align:center; color:#999; font-size:11px; margin-top:16px; padding-top:12px; border-top:1px solid #eee; }
+        .no-data { text-align:center; padding:30px; color:#888; }
+    </style>
 </head>
 <body>
 
-<div class="schedule-card current">
 
-    <div class="time">
-        🕒 12:00–12:25
+<div class="container">
+    <h1>📋 Расписание станций</h1>
+    <div id="app">
+        <div class="status loading">⏳ Загрузка...</div>
     </div>
-
-    <div class="subtitle">
-        Работающие станции
-    </div>
-
-    <div class="grid-2">
-
-        <div class="station">
-            <div class="placeholder"></div>
-            <div class="station-title">КАРАОКЕ</div>
-        </div>
-
-        <div class="station">
-            <div class="placeholder"></div>
-            <div class="station-title">СТРОЙКА</div>
-        </div>
-
-        <div class="station">
-            <div class="placeholder"></div>
-            <div class="station-title">ТЕАТР</div>
-        </div>
-
-        <div class="station">
-            <div class="placeholder"></div>
-            <div class="station-title">СІЛЬПО</div>
-        </div>
-
-    </div>
-
 </div>
 
-<div class="schedule-card next">
+<script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbFBly9f3hNU8Dq-HFKhcAfpBFsrQ5_x8NvG4-25mHOUvTerMlII9ewB2aEuTFgjN3Mg/exec';
 
-    <div class="time">
-        🕒 12:30–12:55
-    </div>
+    async function fetchSchedule() {
+        try {
+            const response = await fetch(SCRIPT_URL);
+            if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
+            const data = await response.json();
+            console.log('📦 Данные:', data);
+            return data;
+        } catch (err) {
+            console.error('❌ Ошибка:', err);
+            return { success: false, error: err.message };
+        }
+    }
 
-    <div class="subtitle">
-        Будущие станции
-    </div>
+    // --- ПРАВИЛЬНОЕ ПОЛУЧЕНИЕ КИЕВСКОГО ВРЕМЕНИ ---
+    function getKyivTime() {
+        const now = new Date();
+        // Используем Intl.DateTimeFormat для получения времени в Киеве
+        const formatter = new Intl.DateTimeFormat('ru-RU', {
+            timeZone: 'Europe/Kiev',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        const parts = formatter.formatToParts(now);
+        const timeParts = {};
+        parts.forEach(part => {
+            if (part.type !== 'literal') {
+                timeParts[part.type] = part.value;
+            }
+        });
+        
+        const date = new Date();
+        date.setHours(parseInt(timeParts.hour) || 0);
+        date.setMinutes(parseInt(timeParts.minute) || 0);
+        date.setSeconds(parseInt(timeParts.second) || 0);
+        return date;
+    }
 
-    <div class="grid-4">
+    function parseTimeToMinutes(timeStr) {
+        if (!timeStr) return -1;
+        const parts = timeStr.split(':');
+        if (parts.length >= 2) {
+            const hours = parseInt(parts[0]);
+            const minutes = parseInt(parts[1]);
+            if (!isNaN(hours) && !isNaN(minutes)) {
+                return hours * 60 + minutes;
+            }
+        }
+        return -1;
+    }
 
-        <div class="station small">
-            <div class="placeholder"></div>
-            <div class="station-title">ТВ</div>
-        </div>
+    function getStationStatus(timeFrom, timeTo, currentTime) {
+        const from = parseTimeToMinutes(timeFrom);
+        const to = parseTimeToMinutes(timeTo);
+        const current = currentTime.getHours() * 60 + currentTime.getMinutes();
+        
+        if (from === -1 || to === -1) return 'unknown';
+        
+        // Если время "до" меньше "от" - интервал через полночь
+        if (to < from) {
+            if (current >= from || current < to) return 'active';
+            if (current < from) return 'future';
+            return 'past';
+        }
+        
+        if (current >= from && current < to) return 'active';
+        if (current < from) return 'future';
+        return 'past';
+    }
 
-        <div class="station small">
-            <div class="placeholder"></div>
-            <div class="station-title">EVA</div>
-        </div>
+    function renderSchedule(data) {
+        const app = document.getElementById('app');
+        
+        if (!data.success) {
+            app.innerHTML = `<div class="status error">❌ Ошибка: ${data.error || 'Неизвестная ошибка'}</div>`;
+            return;
+        }
 
-        <div class="station small">
-            <div class="placeholder"></div>
-            <div class="station-title">ТУРИЗМ</div>
-        </div>
+        if (!data.rows || data.rows.length === 0) {
+            app.innerHTML = `<div class="status error">⚠️ Нет данных для отображения</div>`;
+            return;
+        }
 
-        <div class="station small">
-            <div class="placeholder"></div>
-            <div class="station-title">ЛІТАК</div>
-        </div>
+        const kyivTime = getKyivTime();
+        const currentTimeStr = kyivTime.toLocaleString('ru-RU', { 
+            timeZone: 'Europe/Kiev',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        console.log('🕐 Киевское время:', currentTimeStr);
+        console.log('🕐 Часы:', kyivTime.getHours(), 'Минуты:', kyivTime.getMinutes());
 
-    </div>
+        // ФИЛЬТРУЕМ: только активные и будущие
+        const filteredRows = data.rows.filter(row => {
+            const status = getStationStatus(row.timeFrom, row.timeTo, kyivTime);
+            console.log(`${row.station}: ${row.timeFrom}-${row.timeTo} → ${status}`);
+            return status === 'active' || status === 'future';
+        });
 
-    <div class="event">
+        console.log('Отфильтровано:', filteredRows.length);
 
-        <div class="event-icon"></div>
+        if (filteredRows.length === 0) {
+            app.innerHTML = `
+                <div class="status info">ℹ️ Нет активных или будущих станций</div>
+                <div style="font-size:12px;color:#666;padding:12px;background:#f8f9fa;border-radius:8px;">
+                    <div>🕐 Текущее время: ${currentTimeStr}</div>
+                    <div style="margin-top:8px;">📊 Всего станций: ${data.rows.length}</div>
+                    ${data.rows.map(row => `
+                        <div style="padding:2px 0;border-bottom:1px solid #eee;">
+                            ${row.station}: ${row.timeFrom}-${row.timeTo} 
+                            → ${getStationStatus(row.timeFrom, row.timeTo, kyivTime)}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            return;
+        }
 
-        <div>
-            <div class="event-title">ДР</div>
-            <div class="event-time">12:35–12:40</div>
-        </div>
+        // Группируем по времени
+        const groups = {};
+        filteredRows.forEach(row => {
+            const key = `${row.timeFrom}–${row.timeTo}`;
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(row);
+        });
 
-    </div>
+        const sortedKeys = Object.keys(groups).sort((a, b) => {
+            return a.split('–')[0].localeCompare(b.split('–')[0]);
+        });
 
-</div>
+        let html = `<div class="status success">✅ Активных/будущих: ${filteredRows.length} из ${data.rows.length}</div>`;
+
+        sortedKeys.forEach(key => {
+            const rows = groups[key];
+            const timeFrom = key.split('–')[0];
+            const timeTo = key.split('–')[1];
+            const status = getStationStatus(timeFrom, timeTo, kyivTime);
+            
+            const isActive = status === 'active';
+            const cardClass = isActive ? 'current' : 'next';
+            const badge = isActive ? '<span class="badge badge-active">Активно</span>' : '<span class="badge badge-future">Скоро</span>';
+            const subtitle = isActive ? '🟢 Работают сейчас' : '🔵 Будут позже';
+
+            const stationItems = rows.filter(r => r.station !== 'ДР');
+            const eventRow = rows.find(r => r.station === 'ДР');
+
+            html += `<div class="schedule-card ${cardClass}">`;
+            html += `<div class="time">🕒 ${key} ${badge}</div>`;
+            html += `<div class="subtitle">${subtitle}</div>`;
+
+            const gridClass = isActive ? 'grid-2' : 'grid-4';
+            const stationClass = isActive ? '' : 'small';
+
+            html += `<div class="${gridClass}">`;
+            const displayStations = stationItems.slice(0, isActive ? 4 : 8);
+            displayStations.forEach(st => {
+                const icon = st.station.charAt(0);
+                html += `<div class="station ${stationClass}">`;
+                html += `<div class="placeholder">${icon}</div>`;
+                html += `<div class="station-title">${st.station}</div>`;
+                html += `</div>`;
+            });
+            html += `</div>`;
+
+            if (eventRow) {
+                html += `<div class="event">`;
+                html += `<div class="event-icon">🎂</div>`;
+                html += `<div><div class="event-title">${eventRow.station}</div>`;
+                html += `<div class="event-time">${eventRow.timeFrom}–${eventRow.timeTo}</div></div>`;
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+        });
+
+        html += `<div class="update-time">🔄 Обновлено: ${currentTimeStr} (Киев)</div>`;
+        app.innerHTML = html;
+    }
+
+    async function init() {
+        const app = document.getElementById('app');
+        app.innerHTML = `<div class="status loading">⏳ Загрузка...</div>`;
+        const data = await fetchSchedule();
+        renderSchedule(data);
+        
+        setInterval(async () => {
+            const data = await fetchSchedule();
+            renderSchedule(data);
+        }, 30000);
+    }
+
+    init();
+</script>
 
 </body>
 </html>
