@@ -1,258 +1,819 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Расписание станций</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Кідландія - Розклад</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-        body { background:#f5f7fa; padding:20px; max-width:450px; margin:auto; }
-        .container { background:white; border-radius:16px; padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
-        h1 { font-size:20px; margin-bottom:16px; color:#1a1a2e; }
-        .schedule-card { border-radius:16px; padding:20px; margin-bottom:16px; border:1px solid #e0e0e0; }
-        .current { background:#f3f8e8; border-color:#8bc34a; }
-        .next { background:#eef5ff; border-color:#64b5f6; }
-        .past { background:#f5f5f5; border-color:#ddd; opacity:0.5; display:none; }
-        .time { font-size:28px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-        .current .time { color:#5c8b2d; }
-        .next .time { color:#3f78c2; }
-        .subtitle { font-size:14px; font-weight:600; margin-bottom:16px; }
-        .current .subtitle { color:#5c8b2d; }
-        .next .subtitle { color:#3f78c2; }
-        .grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
-        .grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-        .station { background:white; border-radius:12px; padding:12px; text-align:center; border:1px solid #e8edf3; }
-        .station.small { padding:8px 6px; }
-        .placeholder { width:50px; height:50px; border-radius:50%; border:2px dashed #d5cce5; background:#f8fafc; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; font-size:20px; color:#b0c0d0; }
-        .small .placeholder { width:40px; height:40px; font-size:16px; margin-bottom:6px; }
-        .station-title { font-size:16px; font-weight:600; }
-        .small .station-title { font-size:12px; }
-        .event { margin-top:12px; background:white; border-radius:12px; padding:12px; display:flex; align-items:center; gap:12px; border:1px solid #e8edf3; }
-        .event-icon { width:50px; height:50px; border-radius:50%; background:#f3ebff; border:2px dashed #d8c6ff; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:24px; }
-        .event-title { font-size:20px; font-weight:700; color:#7c3aed; }
-        .event-time { color:#7c3aed; font-weight:600; }
-        .badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:600; }
-        .badge-active { background:#8bc34a; color:white; }
-        .badge-future { background:#64b5f6; color:white; }
-        .status { padding:12px; border-radius:8px; margin-bottom:16px; font-weight:600; text-align:center; }
-        .status.loading { background:#e3f2fd; color:#0d47a1; }
-        .status.success { background:#e8f5e9; color:#1b5e20; }
-        .status.error { background:#ffebee; color:#b71c1c; }
-        .status.info { background:#fff3e0; color:#e65100; }
-        .update-time { text-align:center; color:#999; font-size:11px; margin-top:16px; padding-top:12px; border-top:1px solid #eee; }
-        .no-data { text-align:center; padding:30px; color:#888; }
+        :root {
+            --ink: #101733;
+            --green: #2e871d;
+            --green-soft: #f5fadf;
+            --green-line: #e0ecad;
+            --blue: #1279bf;
+            --blue-soft: #edf7ff;
+            --blue-line: #c8e4f7;
+            --purple: #7a32bf;
+            --muted: #a2a2a2;
+            --card: #ffffff;
+            --shadow: 0 8px 20px rgba(35, 65, 104, .08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: #e9eef5;
+            font-family: "Arial Rounded MT Bold", "Nunito", "Trebuchet MS", Arial, sans-serif;
+            color: var(--ink);
+        }
+
+        .phone {
+            position: relative;
+            width: min(100vw, 430px);
+            min-height: 932px;
+            overflow: hidden;
+            background: #fff;
+            border-radius: 36px;
+            box-shadow: 0 26px 70px rgba(11, 25, 44, .24);
+        }
+
+        .screen {
+            position: relative;
+            min-height: 932px;
+            padding: 18px 28px 86px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 26px;
+            padding: 0 2px;
+            color: #050505;
+            font-size: 18px;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .system-icons {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .signal {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 15px;
+        }
+
+        .signal span {
+            display: block;
+            width: 4px;
+            border-radius: 3px;
+            background: #050505;
+        }
+
+        .signal span:nth-child(1) { height: 5px; }
+        .signal span:nth-child(2) { height: 8px; }
+        .signal span:nth-child(3) { height: 11px; }
+        .signal span:nth-child(4) { height: 14px; }
+
+        .wifi {
+            width: 18px;
+            height: 14px;
+            position: relative;
+        }
+
+        .wifi::before,
+        .wifi::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            border: 3px solid #050505;
+            border-bottom: 0;
+            border-left-color: transparent;
+            border-right-color: transparent;
+            transform: translateX(-50%);
+        }
+
+        .wifi::before {
+            top: 1px;
+            width: 18px;
+            height: 10px;
+            border-radius: 18px 18px 0 0;
+        }
+
+        .wifi::after {
+            top: 6px;
+            width: 9px;
+            height: 5px;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .battery {
+            width: 25px;
+            height: 13px;
+            border: 2px solid #050505;
+            border-radius: 4px;
+            position: relative;
+            padding: 2px;
+        }
+
+        .battery::before {
+            content: "";
+            position: absolute;
+            right: -5px;
+            top: 3px;
+            width: 3px;
+            height: 5px;
+            border-radius: 0 3px 3px 0;
+            background: #050505;
+        }
+
+        .battery::after {
+            content: "";
+            display: block;
+            height: 100%;
+            width: 18px;
+            border-radius: 2px;
+            background: #050505;
+        }
+
+        .cloud {
+            position: absolute;
+            opacity: .72;
+            pointer-events: none;
+        }
+
+        .cloud-left {
+            left: -20px;
+            top: 128px;
+            width: 76px;
+            height: 39px;
+            color: #fbf3cd;
+        }
+
+        .cloud-right {
+            right: -16px;
+            top: 118px;
+            width: 82px;
+            height: 42px;
+            color: #e3f1fe;
+        }
+
+        .logo {
+            position: relative;
+            width: max-content;
+            margin: 32px auto 24px;
+            font-size: 45px;
+            font-weight: 1000;
+            letter-spacing: 1px;
+            line-height: .9;
+            text-transform: uppercase;
+        }
+
+        .logo span {
+            display: inline-block;
+            text-shadow: 0 2px 1px rgba(0, 0, 0, .06);
+        }
+
+        .star {
+            position: absolute;
+            left: 52px;
+            top: -26px;
+            width: 23px;
+            height: 23px;
+            color: #ffc542;
+            filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .12));
+        }
+
+        .panel {
+            border: 1.5px solid;
+            border-radius: 27px;
+            padding: 23px 17px 21px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel + .panel {
+            margin-top: 14px;
+        }
+
+        .panel.active {
+            background: var(--green-soft);
+            border-color: var(--green-line);
+        }
+
+        .panel.next {
+            background: var(--blue-soft);
+            border-color: var(--blue-line);
+            padding: 23px 12px 21px;
+        }
+
+        .time-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 0 0 16px;
+            font-size: 34px;
+            font-weight: 1000;
+            line-height: 1;
+        }
+
+        .active .time-row,
+        .active .section-title {
+            color: var(--green);
+        }
+
+        .next .time-row,
+        .next .section-title {
+            color: var(--blue);
+        }
+
+        .clock {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+        }
+
+        .section-title {
+            margin: 0 0 13px;
+            font-size: 18px;
+            font-weight: 1000;
+            letter-spacing: .2px;
+            text-transform: uppercase;
+        }
+
+        .grid-current {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .station {
+            display: grid;
+            place-items: center;
+            min-width: 0;
+            background: var(--card);
+            border: 1.5px solid rgba(183, 205, 141, .48);
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(35, 65, 104, .05);
+        }
+
+        .station.big {
+            height: 132px;
+            padding: 11px 8px 12px;
+        }
+
+        .station.small {
+            height: 119px;
+            padding: 9px 4px 11px;
+            border-color: rgba(174, 210, 235, .7);
+            border-radius: 15px;
+        }
+
+        .station.wide {
+            grid-column: 1 / -1;
+            height: 80px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 23px;
+            padding: 10px 44px;
+            border-color: rgba(174, 210, 235, .7);
+        }
+
+        .badge {
+            width: 83px;
+            height: 83px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            margin-bottom: 9px;
+            font-size: 46px;
+            overflow: hidden;
+        }
+
+        .big .badge {
+            width: 87px;
+            height: 87px;
+        }
+
+        .small .badge {
+            width: 71px;
+            height: 71px;
+            margin-bottom: 8px;
+            font-size: 38px;
+        }
+
+        .wide .badge {
+            width: 66px;
+            height: 66px;
+            margin: 0;
+            flex: 0 0 auto;
+            font-size: 40px;
+        }
+
+        .station-name {
+            max-width: 100%;
+            color: var(--ink);
+            font-size: 18px;
+            font-weight: 1000;
+            line-height: 1;
+            text-align: center;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .small .station-name {
+            font-size: 12px;
+        }
+
+        .wide .station-name {
+            color: var(--purple);
+            font-size: 20px;
+            line-height: 1.05;
+            text-align: left;
+        }
+
+        .station-time {
+            display: block;
+            margin-top: 8px;
+            color: var(--purple);
+            font-size: 14px;
+            font-weight: 1000;
+        }
+
+        .grid-next {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 4px;
+        }
+
+        .grid-next .wide {
+            margin-top: 5px;
+        }
+
+        /* Цвета для разных станций */
+        .mic { background: linear-gradient(145deg, #e2c9fb, #fff4d0); }
+        .build { background: #fff2b6; }
+        .theatre { background: #ffd5df; }
+        .silpo { background: #d9f5ff; font-size: 34px; color: #f07b24; font-weight: 1000; text-shadow: 0 2px #fff; }
+        .tv { background: #dff6ff; }
+        .eva { background: #eff8e5; color: #6ab43b; font-size: 31px; font-style: italic; font-weight: 1000; }
+        .eva::first-letter { color: #f27521; }
+        .trip { background: #fff2c8; }
+        .plane { background: #dff5ff; }
+        .dr { background: #efe2ff; color: var(--purple); font-size: 30px; font-weight: 1000; }
+
+        /* Универсальные цвета для неизвестных станций */
+        .badge-default { background: #f0f0f0; }
+        .badge-default-2 { background: #e8f0fe; }
+        .badge-default-3 { background: #fce8e8; }
+        .badge-default-4 { background: #e8fce8; }
+
+        .bottom-nav {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 84px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            align-items: start;
+            padding-top: 13px;
+            background: rgba(255, 255, 255, .96);
+        }
+
+        .nav-item {
+            display: grid;
+            justify-items: center;
+            gap: 5px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 1000;
+            text-transform: uppercase;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        .nav-item.active {
+            color: #77a928;
+        }
+
+        .nav-item svg {
+            width: 26px;
+            height: 26px;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .home-indicator {
+            position: absolute;
+            left: 50%;
+            bottom: 7px;
+            width: 132px;
+            height: 5px;
+            border-radius: 999px;
+            background: #050505;
+            transform: translateX(-50%);
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--muted);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .loading-state .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--green-line);
+            border-top-color: var(--green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        .update-time {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 14px;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 390px) {
+            .phone {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .screen {
+                min-height: 100vh;
+                padding-inline: 17px;
+            }
+
+            .logo {
+                font-size: 39px;
+            }
+
+            .time-row {
+                font-size: 29px;
+            }
+
+            .station.wide {
+                padding-inline: 28px;
+            }
+        }
     </style>
 </head>
 <body>
+    <main class="phone" aria-label="Екран розкладу Кідландії">
+        <div class="screen">
+            <div class="status" aria-hidden="true">
+                <span id="currentTime">9:41</span>
+                <div class="system-icons">
+                    <span class="signal"><span></span><span></span><span></span><span></span></span>
+                    <span class="wifi"></span>
+                    <span class="battery"></span>
+                </div>
+            </div>
 
+            <svg class="cloud cloud-left" viewBox="0 0 96 48" aria-hidden="true">
+                <path fill="currentColor" d="M16 38h64c8 0 14-6 14-13s-6-13-14-13c-2 0-4 1-6 1C70 5 62 0 52 0 40 0 31 7 28 18c-3-2-7-3-11-3C8 15 1 22 1 31s7 7 15 7z"/>
+            </svg>
+            <svg class="cloud cloud-right" viewBox="0 0 96 48" aria-hidden="true">
+                <path fill="currentColor" d="M16 38h64c8 0 14-6 14-13s-6-13-14-13c-2 0-4 1-6 1C70 5 62 0 52 0 40 0 31 7 28 18c-3-2-7-3-11-3C8 15 1 22 1 31s7 7 15 7z"/>
+            </svg>
 
-<div class="container">
-    <h1>📋 Расписание станций</h1>
-    <div id="app">
-        <div class="status loading">⏳ Загрузка...</div>
-    </div>
-</div>
+            <h1 class="logo" aria-label="Кідландія">
+                <svg class="star" viewBox="0 0 32 32" aria-hidden="true">
+                    <path fill="currentColor" d="m16 1.8 4.2 8.7 9.5 1.4-6.9 6.7 1.7 9.5L16 23.6l-8.5 4.5 1.7-9.5-6.9-6.7 9.5-1.4L16 1.8z"/>
+                </svg>
+                <span style="color:#7b2fc0">К</span><span style="color:#f06a2f">і</span><span style="color:#6bb72f">д</span><span style="color:#ffc928">л</span><span style="color:#258ad2">а</span><span style="color:#e33b85">н</span><span style="color:#8038bd">д</span><span style="color:#eb3c73">і</span><span style="color:#50bec3">я</span>
+            </h1>
 
-<script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbFBly9f3hNU8Dq-HFKhcAfpBFsrQ5_x8NvG4-25mHOUvTerMlII9ewB2aEuTFgjN3Mg/exec';
+            <div id="scheduleContainer">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <div>Завантаження розкладу...</div>
+                </div>
+            </div>
 
-    async function fetchSchedule() {
-        try {
-            const response = await fetch(SCRIPT_URL);
-            if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-            const data = await response.json();
-            console.log('📦 Данные:', data);
-            return data;
-        } catch (err) {
-            console.error('❌ Ошибка:', err);
-            return { success: false, error: err.message };
-        }
-    }
+            <nav class="bottom-nav" aria-label="Навігація">
+                <a class="nav-item active" href="#" aria-label="Головна">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7"/><path d="M5 9.5V21h5v-6h4v6h5V9.5"/></svg>
+                    <span>Головна</span>
+                </a>
+                <a class="nav-item" href="#" aria-label="Розклад">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4M16 2v4M3 9h18"/><rect x="4" y="5" width="16" height="16" rx="2"/></svg>
+                    <span>Розклад</span>
+                </a>
+                <a class="nav-item" href="#" aria-label="Мапа">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                    <span>Мапа</span>
+                </a>
+                <a class="nav-item" href="#" aria-label="Профіль">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                    <span>Профіль</span>
+                </a>
+            </nav>
+            <div class="home-indicator" aria-hidden="true"></div>
+        </div>
+    </main>
 
-    // --- ПРАВИЛЬНОЕ ПОЛУЧЕНИЕ КИЕВСКОГО ВРЕМЕНИ ---
-    function getKyivTime() {
-        const now = new Date();
-        // Используем Intl.DateTimeFormat для получения времени в Киеве
-        const formatter = new Intl.DateTimeFormat('ru-RU', {
-            timeZone: 'Europe/Kiev',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-        const parts = formatter.formatToParts(now);
-        const timeParts = {};
-        parts.forEach(part => {
-            if (part.type !== 'literal') {
-                timeParts[part.type] = part.value;
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbFBly9f3hNU8Dq-HFKhcAfpBFsrQ5_x8NvG4-25mHOUvTerMlII9ewB2aEuTFgjN3Mg/exec';
+
+        // --- Функция получения данных ---
+        async function fetchSchedule() {
+            try {
+                const response = await fetch(SCRIPT_URL);
+                if (!response.ok) throw new Error(`Помилка: ${response.status}`);
+                const data = await response.json();
+                console.log('📦 Дані:', data);
+                return data;
+            } catch (err) {
+                console.error('❌ Помилка:', err);
+                return { success: false, error: err.message };
             }
-        });
-        
-        const date = new Date();
-        date.setHours(parseInt(timeParts.hour) || 0);
-        date.setMinutes(parseInt(timeParts.minute) || 0);
-        date.setSeconds(parseInt(timeParts.second) || 0);
-        return date;
-    }
-
-    function parseTimeToMinutes(timeStr) {
-        if (!timeStr) return -1;
-        const parts = timeStr.split(':');
-        if (parts.length >= 2) {
-            const hours = parseInt(parts[0]);
-            const minutes = parseInt(parts[1]);
-            if (!isNaN(hours) && !isNaN(minutes)) {
-                return hours * 60 + minutes;
-            }
         }
-        return -1;
-    }
 
-    function getStationStatus(timeFrom, timeTo, currentTime) {
-        const from = parseTimeToMinutes(timeFrom);
-        const to = parseTimeToMinutes(timeTo);
-        const current = currentTime.getHours() * 60 + currentTime.getMinutes();
-        
-        if (from === -1 || to === -1) return 'unknown';
-        
-        // Если время "до" меньше "от" - интервал через полночь
-        if (to < from) {
-            if (current >= from || current < to) return 'active';
+        // --- Получение киевского времени ---
+        function getKyivTime() {
+            const now = new Date();
+            const formatter = new Intl.DateTimeFormat('uk-UA', {
+                timeZone: 'Europe/Kiev',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            const timeStr = formatter.format(now);
+            const parts = timeStr.split(':');
+            const date = new Date();
+            date.setHours(parseInt(parts[0]) || 0);
+            date.setMinutes(parseInt(parts[1]) || 0);
+            date.setSeconds(0);
+            return date;
+        }
+
+        // --- Парсинг времени в минуты ---
+        function parseTimeToMinutes(timeStr) {
+            if (!timeStr) return -1;
+            const parts = timeStr.split(':');
+            if (parts.length >= 2) {
+                const hours = parseInt(parts[0]);
+                const minutes = parseInt(parts[1]);
+                if (!isNaN(hours) && !isNaN(minutes)) {
+                    return hours * 60 + minutes;
+                }
+            }
+            return -1;
+        }
+
+        // --- Определение статуса станции ---
+        function getStationStatus(timeFrom, timeTo, currentTime) {
+            const from = parseTimeToMinutes(timeFrom);
+            const to = parseTimeToMinutes(timeTo);
+            const current = currentTime.getHours() * 60 + currentTime.getMinutes();
+            
+            if (from === -1 || to === -1) return 'unknown';
+            
+            if (to < from) {
+                if (current >= from || current < to) return 'active';
+                if (current < from) return 'future';
+                return 'past';
+            }
+            
+            if (current >= from && current < to) return 'active';
             if (current < from) return 'future';
             return 'past';
         }
-        
-        if (current >= from && current < to) return 'active';
-        if (current < from) return 'future';
-        return 'past';
-    }
 
-    function renderSchedule(data) {
-        const app = document.getElementById('app');
-        
-        if (!data.success) {
-            app.innerHTML = `<div class="status error">❌ Ошибка: ${data.error || 'Неизвестная ошибка'}</div>`;
-            return;
-        }
-
-        if (!data.rows || data.rows.length === 0) {
-            app.innerHTML = `<div class="status error">⚠️ Нет данных для отображения</div>`;
-            return;
-        }
-
-        const kyivTime = getKyivTime();
-        const currentTimeStr = kyivTime.toLocaleString('ru-RU', { 
-            timeZone: 'Europe/Kiev',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-        
-        console.log('🕐 Киевское время:', currentTimeStr);
-        console.log('🕐 Часы:', kyivTime.getHours(), 'Минуты:', kyivTime.getMinutes());
-
-        // ФИЛЬТРУЕМ: только активные и будущие
-        const filteredRows = data.rows.filter(row => {
-            const status = getStationStatus(row.timeFrom, row.timeTo, kyivTime);
-            console.log(`${row.station}: ${row.timeFrom}-${row.timeTo} → ${status}`);
-            return status === 'active' || status === 'future';
-        });
-
-        console.log('Отфильтровано:', filteredRows.length);
-
-        if (filteredRows.length === 0) {
-            app.innerHTML = `
-                <div class="status info">ℹ️ Нет активных или будущих станций</div>
-                <div style="font-size:12px;color:#666;padding:12px;background:#f8f9fa;border-radius:8px;">
-                    <div>🕐 Текущее время: ${currentTimeStr}</div>
-                    <div style="margin-top:8px;">📊 Всего станций: ${data.rows.length}</div>
-                    ${data.rows.map(row => `
-                        <div style="padding:2px 0;border-bottom:1px solid #eee;">
-                            ${row.station}: ${row.timeFrom}-${row.timeTo} 
-                            → ${getStationStatus(row.timeFrom, row.timeTo, kyivTime)}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            return;
-        }
-
-        // Группируем по времени
-        const groups = {};
-        filteredRows.forEach(row => {
-            const key = `${row.timeFrom}–${row.timeTo}`;
-            if (!groups[key]) groups[key] = [];
-            groups[key].push(row);
-        });
-
-        const sortedKeys = Object.keys(groups).sort((a, b) => {
-            return a.split('–')[0].localeCompare(b.split('–')[0]);
-        });
-
-        let html = `<div class="status success">✅ Активных/будущих: ${filteredRows.length} из ${data.rows.length}</div>`;
-
-        sortedKeys.forEach(key => {
-            const rows = groups[key];
-            const timeFrom = key.split('–')[0];
-            const timeTo = key.split('–')[1];
-            const status = getStationStatus(timeFrom, timeTo, kyivTime);
+        // --- Получение эмодзи и класса для станции ---
+        function getStationStyle(stationName) {
+            const name = stationName.toUpperCase();
+            const map = {
+                'КАРАОКЕ': { emoji: '🎤', cls: 'mic' },
+                'СТРОЙКА': { emoji: '🧱', cls: 'build' },
+                'ТЕАТР': { emoji: '🎭', cls: 'theatre' },
+                'СІЛЬПО': { emoji: 'Сільпо', cls: 'silpo' },
+                'СИЛЬПО': { emoji: 'Сільпо', cls: 'silpo' },
+                'ТВ': { emoji: '📺', cls: 'tv' },
+                'EVA': { emoji: 'eva', cls: 'eva' },
+                'ЕВА': { emoji: 'eva', cls: 'eva' },
+                'ТУРИЗМ': { emoji: '🌍🧳', cls: 'trip' },
+                'ТУРАГЕНЦИЯ': { emoji: '🌍🧳', cls: 'trip' },
+                'ЛІТАК': { emoji: '✈️', cls: 'plane' },
+                'САМОЛЕТ': { emoji: '✈️', cls: 'plane' },
+                'ДР': { emoji: 'ДР', cls: 'dr' }
+            };
             
-            const isActive = status === 'active';
-            const cardClass = isActive ? 'current' : 'next';
-            const badge = isActive ? '<span class="badge badge-active">Активно</span>' : '<span class="badge badge-future">Скоро</span>';
-            const subtitle = isActive ? '🟢 Работают сейчас' : '🔵 Будут позже';
+            // Ищем точное совпадение
+            for (const [key, value] of Object.entries(map)) {
+                if (name === key) {
+                    return value;
+                }
+            }
+            
+            // Если не найдено, возвращаем дефолтный
+            const defaultClasses = ['badge-default', 'badge-default-2', 'badge-default-3', 'badge-default-4'];
+            const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            return { 
+                emoji: name.charAt(0), 
+                cls: defaultClasses[hash % defaultClasses.length] 
+            };
+        }
 
-            const stationItems = rows.filter(r => r.station !== 'ДР');
-            const eventRow = rows.find(r => r.station === 'ДР');
-
-            html += `<div class="schedule-card ${cardClass}">`;
-            html += `<div class="time">🕒 ${key} ${badge}</div>`;
-            html += `<div class="subtitle">${subtitle}</div>`;
-
-            const gridClass = isActive ? 'grid-2' : 'grid-4';
-            const stationClass = isActive ? '' : 'small';
-
-            html += `<div class="${gridClass}">`;
-            const displayStations = stationItems.slice(0, isActive ? 4 : 8);
-            displayStations.forEach(st => {
-                const icon = st.station.charAt(0);
-                html += `<div class="station ${stationClass}">`;
-                html += `<div class="placeholder">${icon}</div>`;
-                html += `<div class="station-title">${st.station}</div>`;
-                html += `</div>`;
-            });
-            html += `</div>`;
-
-            if (eventRow) {
-                html += `<div class="event">`;
-                html += `<div class="event-icon">🎂</div>`;
-                html += `<div><div class="event-title">${eventRow.station}</div>`;
-                html += `<div class="event-time">${eventRow.timeFrom}–${eventRow.timeTo}</div></div>`;
-                html += `</div>`;
+        // --- Рендеринг расписания ---
+        function renderSchedule(data) {
+            const container = document.getElementById('scheduleContainer');
+            
+            if (!data.success) {
+                container.innerHTML = `
+                    <div class="panel" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
+                        <div style="font-size:20px;margin-bottom:10px;">❌</div>
+                        <div style="font-weight:600;color:#c62828;">Помилка: ${data.error || 'Невідома помилка'}</div>
+                    </div>
+                `;
+                return;
             }
 
-            html += `</div>`;
-        });
+            if (!data.rows || data.rows.length === 0) {
+                container.innerHTML = `
+                    <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
+                        <div style="font-size:20px;margin-bottom:10px;">📋</div>
+                        <div style="font-weight:600;color:#666;">Немає даних для відображення</div>
+                    </div>
+                `;
+                return;
+            }
 
-        html += `<div class="update-time">🔄 Обновлено: ${currentTimeStr} (Киев)</div>`;
-        app.innerHTML = html;
-    }
+            const kyivTime = getKyivTime();
+            const currentTimeStr = kyivTime.toLocaleString('uk-UA', { 
+                timeZone: 'Europe/Kiev',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Обновляем время в статус-баре
+            document.getElementById('currentTime').textContent = currentTimeStr;
 
-    async function init() {
-        const app = document.getElementById('app');
-        app.innerHTML = `<div class="status loading">⏳ Загрузка...</div>`;
-        const data = await fetchSchedule();
-        renderSchedule(data);
-        
-        setInterval(async () => {
+            // Фильтруем: только активные и будущие
+            const filteredRows = data.rows.filter(row => {
+                const status = getStationStatus(row.timeFrom, row.timeTo, kyivTime);
+                return status === 'active' || status === 'future';
+            });
+
+            if (filteredRows.length === 0) {
+                container.innerHTML = `
+                    <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
+                        <div style="font-size:20px;margin-bottom:10px;">⏰</div>
+                        <div style="font-weight:600;color:#666;">Немає активних або майбутніх станцій</div>
+                        <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${currentTimeStr}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Группируем по времени
+            const groups = {};
+            filteredRows.forEach(row => {
+                const key = `${row.timeFrom}–${row.timeTo}`;
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(row);
+            });
+
+            const sortedKeys = Object.keys(groups).sort((a, b) => {
+                return a.split('–')[0].localeCompare(b.split('–')[0]);
+            });
+
+            let html = '';
+
+            sortedKeys.forEach((key, index) => {
+                const rows = groups[key];
+                const timeFrom = key.split('–')[0];
+                const timeTo = key.split('–')[1];
+                const status = getStationStatus(timeFrom, timeTo, kyivTime);
+                
+                const isActive = status === 'active';
+                const panelClass = isActive ? 'active' : 'next';
+                const title = isActive ? 'Працюючі станції' : 'Майбутні станції';
+
+                const stationItems = rows.filter(r => r.station !== 'ДР');
+                const eventRow = rows.find(r => r.station === 'ДР');
+
+                html += `<section class="panel ${panelClass}" aria-label="${title}">`;
+                html += `<div class="time-row">`;
+                html += `<svg class="clock" viewBox="0 0 48 48" aria-hidden="true">
+                            <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
+                            <path d="M24 12v13l9 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                        </svg>`;
+                html += `<span>${key}</span>`;
+                html += `</div>`;
+                html += `<p class="section-title">${title}</p>`;
+
+                if (isActive) {
+                    // Активные станции - сетка 2 колонки
+                    html += `<div class="grid-current">`;
+                    const displayStations = stationItems.slice(0, 4);
+                    displayStations.forEach(st => {
+                        const style = getStationStyle(st.station);
+                        html += `<article class="station big">`;
+                        html += `<div class="badge ${style.cls}">${style.emoji}</div>`;
+                        html += `<div class="station-name">${st.station}</div>`;
+                        html += `</article>`;
+                    });
+                    html += `</div>`;
+                } else {
+                    // Будущие станции - сетка 4 колонки
+                    html += `<div class="grid-next">`;
+                    const displayStations = stationItems.slice(0, 8);
+                    displayStations.forEach(st => {
+                        const style = getStationStyle(st.station);
+                        html += `<article class="station small">`;
+                        html += `<div class="badge ${style.cls}">${style.emoji}</div>`;
+                        html += `<div class="station-name">${st.station}</div>`;
+                        html += `</article>`;
+                    });
+                    html += `</div>`;
+                }
+
+                // Событие ДР
+                if (eventRow) {
+                    const style = getStationStyle(eventRow.station);
+                    html += `<div class="grid-next">`;
+                    html += `<article class="station wide">`;
+                    html += `<div class="badge ${style.cls}">${style.emoji}</div>`;
+                    html += `<div class="station-name">${eventRow.station}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
+                    html += `</article>`;
+                    html += `</div>`;
+                }
+
+                html += `</section>`;
+            });
+
+            html += `<div class="update-time">🔄 Оновлено: ${currentTimeStr} (Київ)</div>`;
+            container.innerHTML = html;
+        }
+
+        // --- Инициализация ---
+        async function init() {
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <div>Завантаження розкладу...</div>
+                </div>
+            `;
+            
             const data = await fetchSchedule();
             renderSchedule(data);
-        }, 30000);
-    }
+            
+            // Обновление времени каждую минуту
+            setInterval(() => {
+                const kyivTime = getKyivTime();
+                const timeStr = kyivTime.toLocaleString('uk-UA', { 
+                    timeZone: 'Europe/Kiev',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                document.getElementById('currentTime').textContent = timeStr;
+            }, 60000);
+            
+            // Обновление данных каждые 30 секунд
+            setInterval(async () => {
+                const data = await fetchSchedule();
+                renderSchedule(data);
+            }, 30000);
+        }
 
-    init();
-</script>
-
+        // Запуск
+        init();
+    </script>
 </body>
 </html>
