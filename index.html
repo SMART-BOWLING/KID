@@ -146,20 +146,21 @@
             border: 1.5px solid rgba(183, 205, 141, .48);
             border-radius: 16px;
             box-shadow: 0 4px 12px rgba(35, 65, 104, .05);
-        }
-        .station.big {
-            height: 132px;
+            min-height: 132px;
+            height: auto;
             padding: 11px 8px 12px;
         }
         .station.small {
-            height: 119px;
+            min-height: 119px;
+            height: auto;
             padding: 9px 4px 11px;
             border-color: rgba(174, 210, 235, .7);
             border-radius: 15px;
         }
         .station.wide {
             grid-column: 1 / -1;
-            height: 80px;
+            min-height: 80px;
+            height: auto;
             display: flex;
             justify-content: flex-start;
             gap: 23px;
@@ -176,6 +177,7 @@
             margin-bottom: 9px;
             font-size: 46px;
             overflow: hidden;
+            flex-shrink: 0;
         }
         .big .badge {
             width: 87px;
@@ -195,7 +197,6 @@
             font-size: 40px;
         }
         
-        /* Стиль для логотипа как изображения */
         .badge img {
             width: 100%;
             height: 100%;
@@ -208,19 +209,27 @@
             color: #101733;
             font-size: 18px;
             font-weight: 1000;
-            line-height: 1;
+            line-height: 1.2;
             text-align: center;
             text-transform: uppercase;
-            white-space: nowrap;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            padding: 0 2px;
+            width: 100%;
         }
         .small .station-name {
             font-size: 12px;
+            line-height: 1.1;
         }
         .wide .station-name {
             color: #7a32bf;
             font-size: 20px;
-            line-height: 1.05;
+            line-height: 1.1;
             text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .station-time {
@@ -272,6 +281,7 @@
             opacity: 0.7;
         }
 
+        /* Адаптивные стили */
         @media (max-width: 480px) {
             .container {
                 padding: 16px 17px 30px;
@@ -285,6 +295,144 @@
             }
             .station.wide {
                 padding-inline: 28px;
+                gap: 18px;
+            }
+            .station {
+                min-height: 120px;
+                padding: 9px 6px 10px;
+            }
+            .big .badge {
+                width: 75px;
+                height: 75px;
+                font-size: 40px;
+            }
+            .station-name {
+                font-size: 15px;
+            }
+            .small .station-name {
+                font-size: 10px;
+            }
+            .wide .station-name {
+                font-size: 16px;
+            }
+            .station.small {
+                min-height: 100px;
+                padding: 7px 3px 8px;
+            }
+            .small .badge {
+                width: 60px;
+                height: 60px;
+                font-size: 32px;
+            }
+            .grid-current {
+                gap: 8px;
+            }
+            .grid-next {
+                gap: 3px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .station {
+                min-height: 110px;
+                padding: 7px 4px 8px;
+            }
+            .big .badge {
+                width: 65px;
+                height: 65px;
+                font-size: 34px;
+            }
+            .station-name {
+                font-size: 13px;
+            }
+            .small .station-name {
+                font-size: 9px;
+            }
+            .station.small {
+                min-height: 90px;
+                padding: 6px 2px 8px;
+            }
+            .small .badge {
+                width: 50px;
+                height: 50px;
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+            .grid-current {
+                gap: 6px;
+            }
+            .station.wide {
+                padding-inline: 15px;
+                gap: 12px;
+                min-height: 65px;
+            }
+            .wide .badge {
+                width: 50px;
+                height: 50px;
+                font-size: 28px;
+            }
+            .wide .station-name {
+                font-size: 14px;
+            }
+            .time-row {
+                font-size: 24px;
+                gap: 8px;
+            }
+            .clock {
+                width: 30px;
+                height: 30px;
+            }
+        }
+
+        @media (max-width: 340px) {
+            .station {
+                min-height: 95px;
+                padding: 5px 2px 6px;
+            }
+            .big .badge {
+                width: 55px;
+                height: 55px;
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+            .station-name {
+                font-size: 11px;
+            }
+            .small .station-name {
+                font-size: 8px;
+            }
+            .station.small {
+                min-height: 75px;
+                padding: 4px 2px 6px;
+            }
+            .small .badge {
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
+                margin-bottom: 4px;
+            }
+            .grid-current {
+                gap: 4px;
+            }
+            .grid-next {
+                gap: 2px;
+            }
+            .station.wide {
+                padding-inline: 10px;
+                gap: 8px;
+                min-height: 55px;
+            }
+            .wide .badge {
+                width: 40px;
+                height: 40px;
+                font-size: 22px;
+            }
+            .wide .station-name {
+                font-size: 12px;
+            }
+            .station-time {
+                font-size: 10px;
+                margin-top: 4px;
             }
         }
     </style>
@@ -312,7 +460,6 @@
             </div>
         </div>
     </div>
-
 
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZfa0njEtfXFJLWfH4p23Ge7oBtbMkDl5C1fQ3ORH8wB0Sy4l-aAq1hLP1DbIznkknMA/exec';
@@ -494,8 +641,7 @@
 
                 if (isActive) {
                     html += `<div class="grid-current">`;
-                    const displayStations = stationItems.slice(0, 4);
-                    displayStations.forEach(st => {
+                    stationItems.forEach(st => {
                         const style = getStationStyle(st.station);
                         const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
                         html += `<article class="station big">`;
