@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>Кідландія - Розклад</title>
     <style>
         * {
@@ -961,6 +961,62 @@
                 height: 20px;
             }
         }
+
+        /* ===== FIXES / IMPROVEMENTS ===== */
+        :root {
+            --green: #2e871d;
+            --blue: #1279bf;
+            --text: #101733;
+        }
+
+        html {
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body.modal-open,
+        body.stories-open {
+            overflow: hidden;
+        }
+
+        button,
+        .station {
+            touch-action: manipulation;
+        }
+
+        .station:focus-visible,
+        .story-next-btn:focus-visible,
+        .modal-close:focus-visible {
+            outline: 3px solid rgba(18, 121, 191, .35);
+            outline-offset: 3px;
+        }
+
+        .badge img,
+        .modal-content img {
+            display: block;
+        }
+
+        .story-slide img {
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .modal-content {
+            overscroll-behavior: contain;
+        }
+
+        .station[aria-disabled="true"] {
+            cursor: default;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -1032,73 +1088,164 @@
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeEhyXLvNNsXUCTiKTo4GSuuTj4NEmAXopQ0ztwk3HjqLB9BXTqYNuGVlEdNw6LJo-sA/exec';
 
+        const REFRESH_INTERVAL_MS = 30000;
+        const STORY_TRANSITION_MS = 280;
+
         let storiesData = [];
         let currentStoryIndex = 0;
         let settingsData = { logos: {}, maps: {} };
         let isStoriesActive = false;
         let isStoryTransitioning = false;
-        let scheduleDataCache = null;
+        let scheduleDataCache = [];
         let mapsCache = {};
+        let refreshTimer = null;
 
         async function fetchData() {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 12000);
+
             try {
-                const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error(`Помилка: ${response.status}`);
+                const url = new URL(SCRIPT_URL);
+                url.searchParams.set('_', Date.now().toString());
+
+                const response = await fetch(url.toString(), {
+                    method: 'GET',
+                    cache: 'no-store',
+                    signal: controller.signal,
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
                 const data = await response.json();
-                console.log('📦 Дані:', data);
-                return data;
+                return data && typeof data === 'object'
+                    ? data
+                    : { success: false, error: 'Некоректна відповідь сервера' };
             } catch (err) {
-                console.error('❌ Помилка:', err);
-                return { success: false, error: err.message };
+                const message = err.name === 'AbortError'
+                    ? 'Сервер не відповів вчасно'
+                    : (err.message || 'Помилка завантаження');
+
+                console.error('Помилка завантаження:', err);
+                return { success: false, error: message };
+            } finally {
+                clearTimeout(timeoutId);
             }
         }
 
-        function getKyivTime() {
-            const now = new Date();
-            const formatter = new Intl.DateTimeFormat('uk-UA', {
-                timeZone: 'Europe/Kiev',
+        function getKyivParts() {
+            const parts = new Intl.DateTimeFormat('en-GB', {
+                timeZone: 'Europe/Kyiv',
                 hour: '2-digit',
                 minute: '2-digit',
-                hour12: false
-            });
-            const timeStr = formatter.format(now);
-            const parts = timeStr.split(':');
-            const date = new Date();
-            date.setHours(parseInt(parts[0]) || 0);
-            date.setMinutes(parseInt(parts[1]) || 0);
-            date.setSeconds(0);
-            return date;
+                second: '2-digit',
+                hourCycle: 'h23'
+            }).formatToParts(new Date());
+
+            return Object.fromEntries(
+                parts
+                    .filter(part => part.type !== 'literal')
+                    .map(part => [part.type, Number(part.value)])
+            );
+        }
+
+        function getKyivMinutes() {
+            const { hour = 0, minute = 0 } = getKyivParts();
+            return hour * 60 + minute;
+        }
+
+        function getKyivTimeString() {
+            return new Intl.DateTimeFormat('uk-UA', {
+                timeZone: 'Europe/Kyiv',
+                hour: '2-digit',
+                minute: '2-digit',
+                hourCycle: 'h23'
+            }).format(new Date());
+        }
+
+        function normalizeTime(value) {
+            if (value == null) return '';
+            const match = String(value).trim().match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+            if (!match) return '';
+
+            const hours = Number(match[1]);
+            const minutes = Number(match[2]);
+
+            if (hours > 23 || minutes > 59) return '';
+
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
         }
 
         function parseTimeToMinutes(timeStr) {
-            if (!timeStr) return -1;
-            const parts = timeStr.split(':');
-            if (parts.length >= 2) {
-                const hours = parseInt(parts[0]);
-                const minutes = parseInt(parts[1]);
-                if (!isNaN(hours) && !isNaN(minutes)) {
-                    return hours * 60 + minutes;
-                }
-            }
-            return -1;
+            const normalized = normalizeTime(timeStr);
+            if (!normalized) return -1;
+
+            const [hours, minutes] = normalized.split(':').map(Number);
+            return hours * 60 + minutes;
         }
 
-        function getStationStatus(timeFrom, timeTo, currentTime) {
+        function getStationStatus(timeFrom, timeTo, currentMinutes) {
             const from = parseTimeToMinutes(timeFrom);
             const to = parseTimeToMinutes(timeTo);
-            const current = currentTime.getHours() * 60 + currentTime.getMinutes();
 
             if (from === -1 || to === -1) return 'unknown';
 
+            if (from === to) return 'active';
+
             if (to < from) {
-                if (current >= from || current < to) return 'active';
-                if (current < from) return 'future';
-                return 'past';
+                return (currentMinutes >= from || currentMinutes < to) ? 'active' : 'future';
             }
 
-            if (current >= from && current < to) return 'active';
-            if (current < from) return 'future';
+            if (currentMinutes >= from && currentMinutes < to) return 'active';
+            if (currentMinutes < from) return 'future';
             return 'past';
+        }
+
+        function escapeHTML(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function sanitizeImageUrl(value) {
+            if (!value) return '';
+
+            try {
+                const url = new URL(String(value), window.location.href);
+                return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+            } catch {
+                return '';
+            }
+        }
+
+        function escapeRegExp(value) {
+            return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function highlightStoryText(value) {
+            let result = escapeHTML(value);
+
+            const highlights = [
+                ['Кідландія', 'highlight-gold'],
+                ['Kidslandia', 'highlight-gold'],
+                ['дітей', 'highlight-green'],
+                ['дитини', 'highlight-green'],
+                ['дитина', 'highlight-green'],
+                ['діти', 'highlight-green'],
+                ['свято', 'highlight-pink'],
+                ['розваги', 'highlight-blue'],
+                ['веселощі', 'highlight-gold']
+            ];
+
+            highlights.forEach(([word, className]) => {
+                const re = new RegExp(`(${escapeRegExp(word)})`, 'giu');
+                result = result.replace(re, `<span class="${className}">$1</span>`);
+            });
+
+            return result.replace(/\n/g, '<br>');
         }
 
         function getStationStyle(stationName) {
@@ -1146,6 +1293,7 @@
 
             storiesData = stories;
             overlay.classList.add('active');
+            document.body.classList.add('stories-open');
             isStoriesActive = true;
 
             document.getElementById('scheduleWrapper').classList.remove('visible');
@@ -1282,12 +1430,12 @@
                 updateStoryUI(currentStoryIndex + 1);
                 setTimeout(() => {
                     isStoryTransitioning = false;
-                }, 400);
+                }, STORY_TRANSITION_MS);
             } else {
                 closeStories();
                 setTimeout(() => {
                     isStoryTransitioning = false;
-                }, 400);
+                }, STORY_TRANSITION_MS);
             }
         }
 
@@ -1298,7 +1446,7 @@
                 updateStoryUI(currentStoryIndex - 1);
                 setTimeout(() => {
                     isStoryTransitioning = false;
-                }, 400);
+                }, STORY_TRANSITION_MS);
             }
         }
 
@@ -1312,8 +1460,8 @@
         }
 
         // ========== РАСПИСАНИЕ ==========
-        function generateScheduleHTML(data, maps) {
-            if (!data || data.length === 0) {
+        function generateScheduleHTML(data) {
+            if (!Array.isArray(data) || data.length === 0) {
                 return `
                     <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">📋</div>
@@ -1322,77 +1470,132 @@
                 `;
             }
 
-            const kyivTime = getKyivTime();
-            const currentTimeStr = kyivTime.toLocaleString('uk-UA', {
-                timeZone: 'Europe/Kiev',
-                hour: '2-digit',
-                minute: '2-digit'
+            const currentMinutes = getKyivMinutes();
+            const currentTimeStr = getKyivTimeString();
+            const timeGroups = new Map();
+
+            data.forEach(rawRow => {
+                if (!rawRow || typeof rawRow !== 'object') return;
+
+                const timeFrom = normalizeTime(rawRow.timeFrom);
+                const timeTo = normalizeTime(rawRow.timeTo);
+                const station = String(rawRow.station ?? '').trim();
+
+                if (!timeFrom || !timeTo || !station) return;
+
+                const key = `${timeFrom}–${timeTo}`;
+
+                if (!timeGroups.has(key)) timeGroups.set(key, []);
+                timeGroups.get(key).push({ ...rawRow, timeFrom, timeTo, station });
             });
 
-            const timeGroups = {};
-            data.forEach(row => {
-                const key = `${row.timeFrom}–${row.timeTo}`;
-                if (!timeGroups[key]) timeGroups[key] = [];
-                timeGroups[key].push(row);
+            const sortedEntries = [...timeGroups.entries()].sort((a, b) => {
+                return parseTimeToMinutes(a[0].split('–')[0]) -
+                       parseTimeToMinutes(b[0].split('–')[0]);
             });
 
-            const sortedKeys = Object.keys(timeGroups).sort((a, b) => {
-                return a.split('–')[0].localeCompare(b.split('–')[0]);
+            const activeEntries = [];
+            const futureEntries = [];
+
+            sortedEntries.forEach(([key, rows]) => {
+                const [timeFrom, timeTo] = key.split('–');
+                const status = getStationStatus(timeFrom, timeTo, currentMinutes);
+
+                if (status === 'active') activeEntries.push([key, rows]);
+                if (status === 'future') futureEntries.push([key, rows]);
             });
+
+            // Активні блоки + лише найближчий наступний.
+            const entriesToRender = [
+                ...activeEntries.map(entry => ({ entry, isActive: true })),
+                ...futureEntries.slice(0, 1).map(entry => ({ entry, isActive: false }))
+            ];
 
             let html = '';
 
-            sortedKeys.forEach((key) => {
-                const rows = timeGroups[key];
-                const timeFrom = key.split('–')[0];
-                const timeTo = key.split('–')[1];
-                const status = getStationStatus(timeFrom, timeTo, kyivTime);
-
-                if (status === 'past') return;
-
-                const isActive = status === 'active';
-                const panelClass = isActive ? 'active' : 'next';
+            entriesToRender.forEach(({ entry, isActive }) => {
+                const [key, rows] = entry;
                 const title = isActive ? 'Працюють зараз' : 'Наступні';
+                const panelClass = isActive ? 'active' : 'next';
 
-                const stationItems = rows.filter(r => r.station !== 'ДР');
-                const eventRow = rows.find(r => r.station === 'ДР');
+                const stationItems = rows.filter(r => r.station.toUpperCase() !== 'ДР');
+                const eventRows = rows.filter(r => r.station.toUpperCase() === 'ДР');
 
-                html += `<section class="panel ${panelClass}" aria-label="${title}">`;
-                
-                html += `<div class="time-row">`;
-                html += `<div class="time-left">`;
-                html += `<svg class="clock" viewBox="0 0 48 48" aria-hidden="true">
-                            <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
-                            <path d="M24 12v13l9 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
-                        </svg>`;
-                html += `<span>${key}</span>`;
-                html += `</div>`;
-                html += `<div class="time-right">${title}</div>`;
-                html += `</div>`;
+                html += `<section class="panel ${panelClass}" aria-label="${escapeHTML(title)}">`;
 
-                html += `<div class="grid-stations">`;
-                stationItems.forEach(st => {
-                    const style = getStationStyle(st.station);
-                    const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
-                    html += `<article class="station" data-station="${st.station}">`;
-                    html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
-                    const displayName = st.station.replace(/-/g, ' ');
-                    html += `<div class="station-name">${displayName}</div>`;
-                    html += `</article>`;
-                });
-                html += `</div>`;
+                html += `
+                    <div class="time-row">
+                        <div class="time-left">
+                            <svg class="clock" viewBox="0 0 48 48" aria-hidden="true">
+                                <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
+                                <path d="M24 12v13l9 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                            </svg>
+                            <span>${escapeHTML(key)}</span>
+                        </div>
+                        <div class="time-right">${escapeHTML(title)}</div>
+                    </div>
+                `;
 
-                if (eventRow) {
-                    const style = getStationStyle(eventRow.station);
-                    const logoHtml = eventRow.logo ? `<img src="${eventRow.logo}" alt="${eventRow.station}">` : style.emoji;
+                if (stationItems.length) {
                     html += `<div class="grid-stations">`;
-                    html += `<article class="station wide" data-station="${eventRow.station}">`;
-                    html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
-                    const displayName = eventRow.station.replace(/-/g, ' ');
-                    html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
-                    html += `</article>`;
+
+                    stationItems.forEach(st => {
+                        const style = getStationStyle(st.station);
+                        const stationName = String(st.station);
+                        const displayName = stationName.replace(/-/g, ' ');
+                        const logoUrl = sanitizeImageUrl(st.logo);
+                        const hasMap = Boolean(sanitizeImageUrl(mapsCache[stationName]));
+
+                        const logoHtml = logoUrl
+                            ? `<img src="${escapeHTML(logoUrl)}" alt="" loading="lazy" decoding="async">`
+                            : escapeHTML(style.emoji);
+
+                        html += `
+                            <article
+                                class="station"
+                                data-station="${escapeHTML(stationName)}"
+                                role="${hasMap ? 'button' : 'group'}"
+                                tabindex="${hasMap ? '0' : '-1'}"
+                                aria-disabled="${hasMap ? 'false' : 'true'}"
+                            >
+                                <div class="badge ${escapeHTML(style.cls)}">${logoHtml}</div>
+                                <div class="station-name">${escapeHTML(displayName)}</div>
+                            </article>
+                        `;
+                    });
+
                     html += `</div>`;
                 }
+
+                eventRows.forEach(eventRow => {
+                    const style = getStationStyle(eventRow.station);
+                    const stationName = String(eventRow.station);
+                    const displayName = stationName.replace(/-/g, ' ');
+                    const logoUrl = sanitizeImageUrl(eventRow.logo);
+                    const hasMap = Boolean(sanitizeImageUrl(mapsCache[stationName]));
+
+                    const logoHtml = logoUrl
+                        ? `<img src="${escapeHTML(logoUrl)}" alt="" loading="lazy" decoding="async">`
+                        : escapeHTML(style.emoji);
+
+                    html += `
+                        <div class="grid-stations">
+                            <article
+                                class="station wide"
+                                data-station="${escapeHTML(stationName)}"
+                                role="${hasMap ? 'button' : 'group'}"
+                                tabindex="${hasMap ? '0' : '-1'}"
+                                aria-disabled="${hasMap ? 'false' : 'true'}"
+                            >
+                                <div class="badge ${escapeHTML(style.cls)}">${logoHtml}</div>
+                                <div class="station-name">
+                                    ${escapeHTML(displayName)}
+                                    <span class="station-time">${escapeHTML(eventRow.timeFrom)}–${escapeHTML(eventRow.timeTo)}</span>
+                                </div>
+                            </article>
+                        </div>
+                    `;
+                });
 
                 html += `</section>`;
             });
@@ -1401,28 +1604,35 @@
                 html = `
                     <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">⏰</div>
-                        <div style="font-weight:600;color:#666;">Немає активних або майбутніх станцій</div>
-                        <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${currentTimeStr}</div>
+                        <div style="font-weight:600;color:#666;">Станції на сьогодні вже завершили роботу</div>
+                        <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${escapeHTML(currentTimeStr)}</div>
                     </div>
                 `;
             }
 
-            html += `<div class="update-time">🔄 Оновлено: ${currentTimeStr} (Київ)</div>`;
-            
+            html += `<div class="update-time">🔄 Оновлено: ${escapeHTML(currentTimeStr)} (Київ)</div>`;
             return html;
         }
 
         function renderSchedule(data, maps) {
-            const container = document.getElementById('scheduleContainer');
-            const html = generateScheduleHTML(data, maps);
-            container.innerHTML = html;
+            mapsCache = maps && typeof maps === 'object' ? maps : {};
 
-            document.querySelectorAll('.station').forEach(el => {
-                el.addEventListener('click', function() {
-                    const stationName = this.dataset.station;
-                    const mapUrl = maps[stationName];
-                    if (mapUrl) {
-                        openMap(mapUrl);
+            const container = document.getElementById('scheduleContainer');
+            container.innerHTML = generateScheduleHTML(data);
+
+            container.querySelectorAll('.station').forEach(el => {
+                const openStationMap = () => {
+                    const stationName = el.dataset.station;
+                    const mapUrl = sanitizeImageUrl(mapsCache[stationName]);
+
+                    if (mapUrl) openMap(mapUrl);
+                };
+
+                el.addEventListener('click', openStationMap);
+                el.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openStationMap();
                     }
                 });
             });
@@ -1430,21 +1640,73 @@
 
         // ========== МОДАЛЬНОЕ ОКНО ДЛЯ КАРТЫ ==========
         function openMap(url) {
+            const safeUrl = sanitizeImageUrl(url);
+            if (!safeUrl) return;
+
             const modal = document.getElementById('mapModal');
             const img = document.getElementById('mapImage');
-            img.src = url;
+
+            img.src = safeUrl;
             modal.classList.add('active');
+            document.body.classList.add('modal-open');
+            document.getElementById('modalClose').focus();
         }
 
         function closeMap() {
             const modal = document.getElementById('mapModal');
+            if (!modal.classList.contains('active')) return;
+
             modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
             document.getElementById('mapImage').src = '';
         }
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        async function refreshSchedule({ initial = false } = {}) {
+            const data = await fetchData();
+
+            if (!data.success) {
+                if (initial && scheduleDataCache.length === 0) {
+                    const container = document.getElementById('scheduleContainer');
+                    container.innerHTML = `
+                        <div class="panel" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
+                            <div style="font-size:20px;margin-bottom:10px;">⚠️</div>
+                            <div style="font-weight:600;color:#c62828;">Не вдалося завантажити розклад</div>
+                            <div style="font-size:12px;color:#9e4040;margin-top:8px;">${escapeHTML(data.error || 'Невідома помилка')}</div>
+                        </div>
+                    `;
+                    document.getElementById('scheduleWrapper').classList.add('visible');
+                }
+
+                return false;
+            }
+
+            settingsData = data.settings && typeof data.settings === 'object'
+                ? data.settings
+                : { logos: {}, maps: {} };
+
+            mapsCache = settingsData.maps && typeof settingsData.maps === 'object'
+                ? settingsData.maps
+                : {};
+
+            scheduleDataCache = Array.isArray(data.schedule) ? data.schedule : [];
+
+            renderSchedule(scheduleDataCache, mapsCache);
+
+            if (initial) {
+                if (Array.isArray(data.stories) && data.stories.length > 0) {
+                    renderStories(data.stories);
+                } else {
+                    document.getElementById('scheduleWrapper').classList.add('visible');
+                }
+            }
+
+            return true;
+        }
+
         async function init() {
             const container = document.getElementById('scheduleContainer');
+
             container.innerHTML = `
                 <div class="loading-state">
                     <div class="spinner"></div>
@@ -1452,40 +1714,12 @@
                 </div>
             `;
 
-            const data = await fetchData();
-            
-            if (!data.success) {
-                container.innerHTML = `
-                    <div class="panel" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
-                        <div style="font-size:20px;margin-bottom:10px;">❌</div>
-                        <div style="font-weight:600;color:#c62828;">Помилка: ${data.error || 'Невідома помилка'}</div>
-                    </div>
-                `;
-                return;
-            }
+            await refreshSchedule({ initial: true });
 
-            settingsData = data.settings || { logos: {}, maps: {} };
-            mapsCache = settingsData.maps;
-            scheduleDataCache = data.schedule;
-
-            renderSchedule(data.schedule, settingsData.maps);
-
-            if (data.stories && data.stories.length > 0) {
-                renderStories(data.stories);
-            } else {
-                document.getElementById('scheduleWrapper').classList.add('visible');
-                document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
-            }
-
-            setInterval(async () => {
-                const newData = await fetchData();
-                if (newData.success) {
-                    settingsData = newData.settings || { logos: {}, maps: {} };
-                    mapsCache = settingsData.maps;
-                    scheduleDataCache = newData.schedule;
-                    renderSchedule(newData.schedule, settingsData.maps);
-                }
-            }, 30000);
+            clearInterval(refreshTimer);
+            refreshTimer = setInterval(() => {
+                if (!document.hidden) refreshSchedule();
+            }, REFRESH_INTERVAL_MS);
         }
 
         // Обработчики событий
@@ -1504,8 +1738,13 @@
                         prevStory();
                     }
                 }
+
                 if (e.key === 'Escape') {
-                    closeMap();
+                    if (document.getElementById('mapModal').classList.contains('active')) {
+                        closeMap();
+                    } else if (isStoriesActive) {
+                        closeStories();
+                    }
                 }
             });
 
@@ -1516,7 +1755,7 @@
             }, { passive: true });
             overlay.addEventListener('touchend', function(e) {
                 const diff = touchStartX - e.changedTouches[0].screenX;
-                if (Math.abs(diff) > 30) {
+                if (Math.abs(diff) > 45) {
                     if (diff > 0) nextStory();
                     else prevStory();
                 }
@@ -1525,6 +1764,19 @@
             document.getElementById('modalClose').addEventListener('click', closeMap);
             document.getElementById('mapModal').addEventListener('click', function(e) {
                 if (e.target === this) closeMap();
+            });
+
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden && scheduleDataCache.length) {
+                    renderSchedule(scheduleDataCache, mapsCache);
+                    refreshSchedule();
+                }
+            });
+
+            window.addEventListener('pageshow', function() {
+                if (scheduleDataCache.length) {
+                    renderSchedule(scheduleDataCache, mapsCache);
+                }
             });
         });
 
