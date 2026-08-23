@@ -10,7 +10,6 @@
             margin: 0;
             padding: 0;
         }
-
         body {
             min-height: 100vh;
             background: #ffffff;
@@ -18,7 +17,6 @@
             color: #101733;
             padding: 20px;
         }
-
         .container {
             max-width: 500px;
             margin: 0 auto;
@@ -27,7 +25,6 @@
             padding: 24px 28px 40px;
             position: relative;
         }
-
         .cloud {
             position: absolute;
             opacity: .72;
@@ -47,7 +44,6 @@
             height: 42px;
             color: #e3f1fe;
         }
-
         .logo {
             position: relative;
             width: max-content;
@@ -71,7 +67,6 @@
             color: #ffc542;
             filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .12));
         }
-
         .panel {
             border: 1.5px solid;
             border-radius: 27px;
@@ -79,7 +74,7 @@
             background: #ffffff;
             box-shadow: 0 8px 20px rgba(35, 65, 104, .08);
         }
-        .panel + .panel {
+        .panel+.panel {
             margin-top: 14px;
         }
         .panel.active {
@@ -91,7 +86,6 @@
             border-color: #c8e4f7;
             padding: 23px 12px 21px;
         }
-
         .time-row {
             display: flex;
             align-items: center;
@@ -109,13 +103,11 @@
         .next .section-title {
             color: #1279bf;
         }
-
         .clock {
             width: 38px;
             height: 38px;
             flex: 0 0 auto;
         }
-
         .section-title {
             margin: 0 0 13px;
             font-size: 18px;
@@ -123,7 +115,6 @@
             letter-spacing: .2px;
             text-transform: uppercase;
         }
-
         .grid-current {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -137,7 +128,6 @@
         .grid-next .wide {
             margin-top: 5px;
         }
-
         .station {
             display: grid;
             place-items: center;
@@ -167,7 +157,6 @@
             padding: 10px 44px;
             border-color: rgba(174, 210, 235, .7);
         }
-
         .badge {
             width: 83px;
             height: 83px;
@@ -196,14 +185,12 @@
             flex: 0 0 auto;
             font-size: 40px;
         }
-        
         .badge img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
         }
-
         .station-name {
             max-width: 100%;
             color: #101733;
@@ -231,7 +218,6 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-
         .station-time {
             display: block;
             margin-top: 8px;
@@ -239,12 +225,18 @@
             font-size: 14px;
             font-weight: 1000;
         }
-
-        .badge-default { background: #f0f0f0; }
-        .badge-default-2 { background: #e8f0fe; }
-        .badge-default-3 { background: #fce8e8; }
-        .badge-default-4 { background: #e8fce8; }
-
+        .badge-default {
+            background: #f0f0f0;
+        }
+        .badge-default-2 {
+            background: #e8f0fe;
+        }
+        .badge-default-3 {
+            background: #fce8e8;
+        }
+        .badge-default-4 {
+            background: #e8fce8;
+        }
         .loading-state {
             text-align: center;
             padding: 40px 20px;
@@ -263,16 +255,16 @@
             margin-bottom: 16px;
         }
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
-
         .no-data {
             text-align: center;
             padding: 30px 20px;
             color: #a2a2a2;
             font-size: 16px;
         }
-
         .update-time {
             text-align: center;
             color: #a2a2a2;
@@ -280,8 +272,6 @@
             margin-top: 14px;
             opacity: 0.7;
         }
-
-        /* Адаптивные стили */
         @media (max-width: 480px) {
             .container {
                 padding: 16px 17px 30px;
@@ -331,7 +321,6 @@
                 gap: 3px;
             }
         }
-
         @media (max-width: 380px) {
             .station {
                 min-height: 110px;
@@ -383,7 +372,6 @@
                 height: 30px;
             }
         }
-
         @media (max-width: 340px) {
             .station {
                 min-height: 95px;
@@ -462,7 +450,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxVQ2QzC759x-ojtgXcPfcxKrlDBph8ZAf-HWvX_weomR9hiD9HsneHzpI93CQxa2Hwsw/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeEhyXLvNNsXUCTiKTo4GSuuTj4NEmAXopQ0ztwk3HjqLB9BXTqYNuGVlEdNw6LJo-sA/exec';
 
         async function fetchSchedule() {
             try {
@@ -511,15 +499,15 @@
             const from = parseTimeToMinutes(timeFrom);
             const to = parseTimeToMinutes(timeTo);
             const current = currentTime.getHours() * 60 + currentTime.getMinutes();
-            
+
             if (from === -1 || to === -1) return 'unknown';
-            
+
             if (to < from) {
                 if (current >= from || current < to) return 'active';
                 if (current < from) return 'future';
                 return 'past';
             }
-            
+
             if (current >= from && current < to) return 'active';
             if (current < from) return 'future';
             return 'past';
@@ -529,37 +517,35 @@
             const name = stationName.toUpperCase();
             const map = {
                 'КАРАОКЕ': { emoji: '🎤', cls: 'mic' },
-                'СТРОЙКА': { emoji: '🧱', cls: 'build' },
+                'СТРОЙМАЙДАНЧИК': { emoji: '🧱', cls: 'build' },
                 'ТЕАТР': { emoji: '🎭', cls: 'theatre' },
-                'СІЛЬПО': { emoji: 'Сільпо', cls: 'silpo' },
+                'ДОСТАВКА СИЛЬПО': { emoji: 'Сільпо', cls: 'silpo' },
                 'СИЛЬПО': { emoji: 'Сільпо', cls: 'silpo' },
-                'ТВ': { emoji: '📺', cls: 'tv' },
+                'TV-СТУДІЯ': { emoji: '📺', cls: 'tv' },
                 'EVA': { emoji: 'eva', cls: 'eva' },
                 'ЕВА': { emoji: 'eva', cls: 'eva' },
-                'ТУРИЗМ': { emoji: '🌍🧳', cls: 'trip' },
-                'ТУРАГЕНЦИЯ': { emoji: '🌍🧳', cls: 'trip' },
+                'ТУРИСТИЧНЕ АГЕНСТВО': { emoji: '🌍🧳', cls: 'trip' },
                 'ЛІТАК': { emoji: '✈️', cls: 'plane' },
-                'САМОЛЕТ': { emoji: '✈️', cls: 'plane' },
                 'ДР': { emoji: '🎂', cls: 'dr' }
             };
-            
+
             for (const [key, value] of Object.entries(map)) {
                 if (name === key) {
                     return value;
                 }
             }
-            
+
             const defaultClasses = ['badge-default', 'badge-default-2', 'badge-default-3', 'badge-default-4'];
             const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            return { 
-                emoji: name.charAt(0), 
-                cls: defaultClasses[hash % defaultClasses.length] 
+            return {
+                emoji: name.charAt(0),
+                cls: defaultClasses[hash % defaultClasses.length]
             };
         }
 
         function renderSchedule(data) {
             const container = document.getElementById('scheduleContainer');
-            
+
             if (!data.success) {
                 container.innerHTML = `
                     <div class="panel" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
@@ -581,12 +567,13 @@
             }
 
             const kyivTime = getKyivTime();
-            const currentTimeStr = kyivTime.toLocaleString('uk-UA', { 
+            const currentTimeStr = kyivTime.toLocaleString('uk-UA', {
                 timeZone: 'Europe/Kiev',
                 hour: '2-digit',
                 minute: '2-digit'
             });
 
+            // Фильтруем только активные и будущие станции
             const filteredRows = data.rows.filter(row => {
                 const status = getStationStatus(row.timeFrom, row.timeTo, kyivTime);
                 return status === 'active' || status === 'future';
@@ -621,10 +608,10 @@
                 const timeFrom = key.split('–')[0];
                 const timeTo = key.split('–')[1];
                 const status = getStationStatus(timeFrom, timeTo, kyivTime);
-                
+
                 const isActive = status === 'active';
                 const panelClass = isActive ? 'active' : 'next';
-                const title = isActive ? 'Працюючі станції' : 'Майбутні станції';
+                const title = isActive ? 'Працюють зараз' : 'Наступні';
 
                 const stationItems = rows.filter(r => r.station !== 'ДР');
                 const eventRow = rows.find(r => r.station === 'ДР');
@@ -690,10 +677,10 @@
                     <div>Завантаження розкладу...</div>
                 </div>
             `;
-            
+
             const data = await fetchSchedule();
             renderSchedule(data);
-            
+
             setInterval(async () => {
                 const data = await fetchSchedule();
                 renderSchedule(data);
