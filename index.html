@@ -1460,6 +1460,25 @@
             const data = await fetchData();
             
             if (!data.success) {
+                // Проверяем, есть ли специальный флаг noSchedule
+                if (data.noSchedule) {
+                    container.innerHTML = `
+                        <div class="panel" style="border-color:#f5e6b8;background:#fffbf0;padding:30px;text-align:center;">
+                            <div style="font-size:48px;margin-bottom:15px;">📅</div>
+                            <div style="font-size:20px;font-weight:700;color:#8d6e20;margin-bottom:10px;">Сьогодні немає розкладу</div>
+                            <div style="font-size:14px;color:#a07c3a;max-width:300px;margin:0 auto;">
+                                Розклад доступний тільки в дні проведення занять. 
+                                Завітайте до нас в інший день!
+                            </div>
+                            <div style="margin-top:20px;font-size:13px;color:#b89550;">
+                                🕐 Поточний час: ${new Date().toLocaleString('uk-UA', {timeZone: 'Europe/Kiev', hour: '2-digit', minute: '2-digit'})}
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('scheduleWrapper').classList.add('visible');
+                    return;
+                }
+                
                 container.innerHTML = `
                     <div class="panel" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">❌</div>
@@ -1489,6 +1508,17 @@
                     mapsCache = settingsData.maps;
                     scheduleDataCache = newData.schedule;
                     renderSchedule(newData.schedule, settingsData.maps);
+                } else if (newData.noSchedule) {
+                    // Если расписания нет - показываем сообщение
+                    const container = document.getElementById('scheduleContainer');
+                    container.innerHTML = `
+                        <div class="panel" style="border-color:#f5e6b8;background:#fffbf0;padding:30px;text-align:center;">
+                            <div style="font-size:48px;margin-bottom:15px;">📅</div>
+                            <div style="font-size:20px;font-weight:700;color:#8d6e20;margin-bottom:10px;">Сьогодні немає розкладу</div>
+                            <div style="font-size:14px;color:#a07c3a;">Завітайте до нас в інший день!</div>
+                        </div>
+                    `;
+                    document.getElementById('scheduleWrapper').classList.add('visible');
                 }
             }, 30000);
         }
