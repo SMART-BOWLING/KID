@@ -272,6 +272,18 @@
             margin-top: 14px;
             opacity: 0.7;
         }
+        .debug-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #666;
+            margin-top: 10px;
+            border: 1px solid #e0e0e0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
         @media (max-width: 480px) {
             .container {
                 padding: 16px 17px 30px;
@@ -561,6 +573,7 @@
                     <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">📋</div>
                         <div style="font-weight:600;color:#666;">Немає даних для відображення</div>
+                        <div class="debug-info">${JSON.stringify(data, null, 2)}</div>
                     </div>
                 `;
                 return;
@@ -585,6 +598,7 @@
                         <div style="font-size:20px;margin-bottom:10px;">⏰</div>
                         <div style="font-weight:600;color:#666;">Немає активних або майбутніх станцій</div>
                         <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${currentTimeStr}</div>
+                        <div class="debug-info">Всего станций: ${data.rows.length}\n${JSON.stringify(data.rows.slice(0, 3), null, 2)}</div>
                     </div>
                 `;
                 return;
