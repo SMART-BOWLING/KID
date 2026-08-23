@@ -174,23 +174,30 @@
             color: #101733;
             font-size: 10px;
             font-weight: 1000;
-            line-height: 1.1;
+            line-height: 1.2;
             text-align: center;
             text-transform: uppercase;
             word-wrap: break-word;
             overflow-wrap: break-word;
-            hyphens: auto;
+            word-break: break-word;
+            hyphens: none;
             padding: 0 1px;
             width: 100%;
+        }
+        /* Убираем перенос через дефис */
+        .station-name br {
+            display: none;
         }
         .wide .station-name {
             color: #7a32bf;
             font-size: 17px;
-            line-height: 1.1;
+            line-height: 1.2;
             text-align: left;
             white-space: normal;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            word-break: break-word;
+            hyphens: none;
         }
         .station-time {
             display: block;
@@ -675,7 +682,9 @@
                     const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
                     html += `<article class="station">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
-                    html += `<div class="station-name">${st.station}</div>`;
+                    // Заменяем дефис на пробел для правильного переноса по словам
+                    const displayName = st.station.replace(/-/g, ' ');
+                    html += `<div class="station-name">${displayName}</div>`;
                     html += `</article>`;
                 });
                 html += `</div>`;
@@ -686,7 +695,8 @@
                     html += `<div class="grid-stations">`;
                     html += `<article class="station wide">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
-                    html += `<div class="station-name">${eventRow.station}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
+                    const displayName = eventRow.station.replace(/-/g, ' ');
+                    html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
                     html += `</article>`;
                     html += `</div>`;
                 }
