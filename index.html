@@ -86,7 +86,6 @@
             display: flex;
         }
         
-        /* Фон для сторис - зеленый (активный) */
         .stories-bg-green {
             position: absolute;
             top: 0;
@@ -102,7 +101,6 @@
             opacity: 1;
         }
         
-        /* Фон для сторис - синий (будущий) */
         .stories-bg-blue {
             position: absolute;
             top: 0;
@@ -118,7 +116,6 @@
             opacity: 1;
         }
         
-        /* Декоративные круги */
         .story-circle {
             position: absolute;
             border-radius: 50%;
@@ -146,7 +143,6 @@
             transform: translateX(-50%);
         }
         
-        /* Цвета кругов для зеленого фона */
         .stories-bg-green .story-circle-1 {
             background: radial-gradient(circle, rgba(46, 135, 29, 0.12), transparent);
         }
@@ -157,7 +153,6 @@
             background: radial-gradient(circle, rgba(46, 135, 29, 0.06), transparent);
         }
         
-        /* Цвета кругов для синего фона */
         .stories-bg-blue .story-circle-1 {
             background: radial-gradient(circle, rgba(18, 121, 191, 0.12), transparent);
         }
@@ -257,7 +252,6 @@
             background-clip: text;
         }
         
-        /* Прогресс-бары сверху - без анимации */
         .story-progress {
             position: absolute;
             top: 16px;
@@ -281,7 +275,6 @@
             border-radius: 4px;
         }
         
-        /* Цвет прогресса для зеленого фона */
         .stories-bg-green.active ~ .story-progress .fill {
             background: #2e871d;
         }
@@ -289,7 +282,6 @@
             background: #2e871d;
         }
         
-        /* Цвет прогресса для синего фона */
         .stories-bg-blue.active ~ .story-progress .fill {
             background: #1279bf;
         }
@@ -304,7 +296,6 @@
             width: 100% !important;
         }
         
-        /* Зоны для тапов */
         .story-tap-area {
             position: absolute;
             top: 0;
@@ -319,7 +310,6 @@
             right: 0;
         }
         
-        /* Кнопка ДАЛІ - без стрелки */
         .story-next-btn {
             position: absolute;
             bottom: 40px;
@@ -350,7 +340,6 @@
             transform: translateX(-50%) scale(0.95);
         }
         
-        /* Стили кнопки для зеленого фона */
         .stories-bg-green.active ~ .story-next-btn {
             background: rgba(46, 135, 29, 0.7);
             border-color: rgba(46, 135, 29, 0.5);
@@ -363,7 +352,6 @@
             border-color: rgba(46, 135, 29, 0.5);
         }
         
-        /* Стили кнопки для синего фона */
         .stories-bg-blue.active ~ .story-next-btn {
             background: rgba(18, 121, 191, 0.7);
             border-color: rgba(18, 121, 191, 0.5);
@@ -380,7 +368,6 @@
             transform: translateX(-50%) scale(1.05);
         }
         
-        /* Индикаторы снизу */
         .story-indicators {
             position: absolute;
             bottom: 105px;
@@ -422,7 +409,6 @@
             background: rgba(18, 121, 191, 0.6);
         }
         
-        /* Счетчик сторис */
         .story-counter {
             position: absolute;
             top: 22px;
@@ -471,35 +457,46 @@
             border-color: #c8e4f7;
             padding: 16px 8px 16px;
         }
+        
+        /* Новая строка: время + заголовок в одну строку */
         .time-row {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
             margin: 0 0 12px;
+            gap: 10px;
+        }
+        .time-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 28px;
             font-weight: 1000;
             line-height: 1;
         }
-        .active .time-row,
-        .active .section-title {
+        .time-right {
+            font-size: 16px;
+            font-weight: 1000;
+            letter-spacing: .2px;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+        
+        .active .time-left,
+        .active .time-right {
             color: #2e871d;
         }
-        .next .time-row,
-        .next .section-title {
+        .next .time-left,
+        .next .time-right {
             color: #1279bf;
         }
+        
         .clock {
             width: 32px;
             height: 32px;
             flex: 0 0 auto;
         }
-        .section-title {
-            margin: 0 0 10px;
-            font-size: 16px;
-            font-weight: 1000;
-            letter-spacing: .2px;
-            text-transform: uppercase;
-        }
+        
         .grid-stations {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -638,7 +635,6 @@
             opacity: 0.7;
         }
         
-        /* Модальное окно для карты */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -705,14 +701,20 @@
                 width: 18px;
                 height: 18px;
             }
-            .time-row {
+            .time-left {
                 font-size: 24px;
                 gap: 8px;
-                margin: 0 0 10px;
+            }
+            .time-right {
+                font-size: 14px;
             }
             .clock {
                 width: 28px;
                 height: 28px;
+            }
+            .time-row {
+                margin: 0 0 10px;
+                gap: 8px;
             }
             .panel {
                 padding: 12px 6px 12px;
@@ -720,10 +722,6 @@
             }
             .panel.next {
                 padding: 12px 5px 12px;
-            }
-            .section-title {
-                font-size: 14px;
-                margin: 0 0 8px;
             }
             .station {
                 min-height: 85px;
@@ -830,14 +828,20 @@
                 width: 16px;
                 height: 16px;
             }
-            .time-row {
+            .time-left {
                 font-size: 20px;
                 gap: 6px;
-                margin: 0 0 8px;
+            }
+            .time-right {
+                font-size: 12px;
             }
             .clock {
                 width: 24px;
                 height: 24px;
+            }
+            .time-row {
+                margin: 0 0 8px;
+                gap: 6px;
             }
             .panel {
                 padding: 10px 4px 10px;
@@ -845,10 +849,6 @@
             }
             .panel.next {
                 padding: 10px 4px 10px;
-            }
-            .section-title {
-                font-size: 12px;
-                margin: 0 0 6px;
             }
             .station {
                 min-height: 70px;
@@ -930,6 +930,17 @@
                 font-size: 12px;
                 min-width: 70px;
             }
+            .time-left {
+                font-size: 17px;
+                gap: 5px;
+            }
+            .time-right {
+                font-size: 10px;
+            }
+            .clock {
+                width: 20px;
+                height: 20px;
+            }
         }
     </style>
 </head>
@@ -949,7 +960,6 @@
             <span style="color:#7b2fc0">К</span><span style="color:#f06a2f">і</span><span style="color:#6bb72f">д</span><span style="color:#ffc928">л</span><span style="color:#258ad2">а</span><span style="color:#e33b85">н</span><span style="color:#8038bd">д</span><span style="color:#eb3c73">і</span><span style="color:#50bec3">я</span>
         </h1>
 
-        <!-- Обертка для расписания -->
         <div id="scheduleWrapper" class="schedule-wrapper">
             <div id="scheduleContainer">
                 <div class="loading-state">
@@ -962,7 +972,6 @@
 
     <!-- Полноэкранные сторис -->
     <div class="stories-overlay" id="storiesOverlay">
-        <!-- Фоны -->
         <div class="stories-bg-green" id="bgGreen">
             <div class="story-circle story-circle-1"></div>
             <div class="story-circle story-circle-2"></div>
@@ -1187,7 +1196,6 @@
             const dots = document.querySelectorAll('.story-dot');
             const counter = document.getElementById('storyCounter');
             
-            // Чередуем фоны: четные - зеленый, нечетные - синий
             const bgGreen = document.getElementById('bgGreen');
             const bgBlue = document.getElementById('bgBlue');
             
@@ -1232,7 +1240,7 @@
             const btn = document.getElementById('storyNextBtn');
             const btnText = document.getElementById('btnText');
             if (currentStoryIndex === storiesData.length - 1) {
-                btnText.textContent = 'ПОГОДЖУЮСЬ';
+                btnText.textContent = 'ДО РОЗКЛАДУ';
                 btn.classList.add('finish');
             } else {
                 btnText.textContent = 'ДАЛІ';
@@ -1327,14 +1335,18 @@
                 const eventRow = rows.find(r => r.station === 'ДР');
 
                 html += `<section class="panel ${panelClass}" aria-label="${title}">`;
+                
+                // Время и заголовок в одной строке
                 html += `<div class="time-row">`;
+                html += `<div class="time-left">`;
                 html += `<svg class="clock" viewBox="0 0 48 48" aria-hidden="true">
                             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
                             <path d="M24 12v13l9 6" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
                         </svg>`;
                 html += `<span>${key}</span>`;
                 html += `</div>`;
-                html += `<p class="section-title">${title}</p>`;
+                html += `<div class="time-right">${title}</div>`;
+                html += `</div>`;
 
                 html += `<div class="grid-stations">`;
                 stationItems.forEach(st => {
