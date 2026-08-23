@@ -436,7 +436,7 @@
             border: 1px solid rgba(255,255,255,0.5);
             text-align: left;
             width: 100%;
-            white-space: pre-wrap; /* Сохраняем переносы строк */
+            white-space: pre-wrap;
             word-break: break-word;
         }
         
@@ -478,14 +478,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-        }
-        .story-slide .story-text .list-item {
-            display: block;
-            margin-top: 6px;
-            padding-left: 8px;
-        }
-        .story-slide .story-text .list-item:first-of-type {
-            margin-top: 4px;
         }
         
         .story-progress {
@@ -1150,54 +1142,29 @@
             };
         }
 
-        // ========== Функция для форматирования текста с сохранением переносов ==========
+        // ========== Функция для форматирования текста: просто переносим строку если есть • ==========
         function formatStoryText(text) {
             if (!text) return '';
             
-            // Заменяем маркеры списка на перенос строки + маркер
-            // Ищем строки, начинающиеся с • или - или цифры с точкой
+            // Просто заменяем маркеры списка на перенос строки + маркер
+            // Ищем •, -, * или цифру с точкой в начале строки
             let lines = text.split('\n');
-            let formattedLines = [];
+            let result = [];
             
             for (let line of lines) {
-                // Если строка начинается с маркера списка, добавляем перенос
-                if (/^[\s]*[•\-*]/.test(line) || /^[\s]*\d+\./.test(line)) {
-                    formattedLines.push(line);
+                // Проверяем, начинается ли строка с маркера списка (после возможных пробелов)
+                let trimmed = line.trim();
+                if (/^[•\-*]/.test(trimmed) || /^\d+\./.test(trimmed)) {
+                    // Если это маркер списка, добавляем перенос строки перед ним
+                    result.push(line);
                 } else {
-                    // Если это не маркер, но предыдущая строка была маркером, 
-                    // то это продолжение списка - оставляем как есть
-                    if (formattedLines.length > 0 && /^[\s]*[•\-*]/.test(formattedLines[formattedLines.length - 1]) || 
-                        formattedLines.length > 0 && /^[\s]*\d+\./.test(formattedLines[formattedLines.length - 1])) {
-                        formattedLines.push(line);
-                    } else {
-                        // Обычный текст, разделяем по точкам для лучшей читаемости,
-                        // но не разрываем если это не конец предложения
-                        if (line.length > 60 && !line.includes('\n')) {
-                            // Разбиваем длинные предложения по точке с пробелом
-                            let parts = line.split(/(?<=\.)\s+/);
-                            if (parts.length > 1) {
-                                for (let part of parts) {
-                                    formattedLines.push(part.trim());
-                                }
-                            } else {
-                                formattedLines.push(line);
-                            }
-                        } else {
-                            formattedLines.push(line);
-                        }
-                    }
+                    // Обычный текст — оставляем как есть
+                    result.push(line);
                 }
             }
             
-            // Добавляем отступы для маркеров списка
-            let result = formattedLines.map(line => {
-                if (/^[\s]*[•\-*]/.test(line) || /^[\s]*\d+\./.test(line)) {
-                    return `\n${line}`;
-                }
-                return line;
-            }).join('\n');
-            
-            return result;
+            // Объединяем с переносами строк
+            return result.join('\n');
         }
 
         // ========== СТОРИС ==========
@@ -1242,7 +1209,7 @@
                     const isLong = rawText.length > 120;
                     text.className = 'story-text' + (isLong ? '' : ' large');
                     
-                    // Форматируем текст с сохранением переносов для списков
+                    // Форматируем текст: просто переносим строку если есть маркер
                     let formattedText = formatStoryText(rawText);
                     
                     // Применяем выделения
@@ -1263,8 +1230,7 @@
                         formattedText = formattedText.replace(h.find, h.replace);
                     });
                     
-                    // Преобразуем переносы строк в <br> для HTML, но сохраняем структуру
-                    // Заменяем \n на <br> но сохраняем пустые строки для отступов
+                    // Преобразуем переносы строк в <br> для HTML
                     let htmlText = formattedText.split('\n').map(line => {
                         if (line.trim() === '') return '<br>';
                         return line;
