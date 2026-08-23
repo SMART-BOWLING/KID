@@ -531,11 +531,11 @@
                 'КАРАОКЕ': { emoji: '🎤', cls: 'mic' },
                 'СТРОЙМАЙДАНЧИК': { emoji: '🧱', cls: 'build' },
                 'ТЕАТР': { emoji: '🎭', cls: 'theatre' },
-                'ДОСТАВКА СИЛЬПО': { emoji: 'Сільпо', cls: 'silpo' },
-                'СИЛЬПО': { emoji: 'Сільпо', cls: 'silpo' },
+                'ДОСТАВКА СИЛЬПО': { emoji: '🛒', cls: 'silpo' },
+                'СИЛЬПО': { emoji: '🛒', cls: 'silpo' },
                 'TV-СТУДІЯ': { emoji: '📺', cls: 'tv' },
-                'EVA': { emoji: 'eva', cls: 'eva' },
-                'ЕВА': { emoji: 'eva', cls: 'eva' },
+                'EVA': { emoji: '🛍️', cls: 'eva' },
+                'ЕВА': { emoji: '🛍️', cls: 'eva' },
                 'ТУРИСТИЧНЕ АГЕНСТВО': { emoji: '🌍🧳', cls: 'trip' },
                 'ЛІТАК': { emoji: '✈️', cls: 'plane' },
                 'ДР': { emoji: '🎂', cls: 'dr' }
@@ -586,47 +586,35 @@
                 minute: '2-digit'
             });
 
-            // Фильтруем только активные и будущие станции
-            const filteredRows = data.rows.filter(row => {
-                const status = getStationStatus(row.timeFrom, row.timeTo, kyivTime);
-                return status === 'active' || status === 'future';
-            });
-
-            if (filteredRows.length === 0) {
-                container.innerHTML = `
-                    <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
-                        <div style="font-size:20px;margin-bottom:10px;">⏰</div>
-                        <div style="font-weight:600;color:#666;">Немає активних або майбутніх станцій</div>
-                        <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${currentTimeStr}</div>
-                        <div class="debug-info">Всего станций: ${data.rows.length}\n${JSON.stringify(data.rows.slice(0, 3), null, 2)}</div>
-                    </div>
-                `;
-                return;
-            }
-
-            const groups = {};
-            filteredRows.forEach(row => {
+            // Группируем строки по времени
+            const timeGroups = {};
+            data.rows.forEach(row => {
                 const key = `${row.timeFrom}–${row.timeTo}`;
-                if (!groups[key]) groups[key] = [];
-                groups[key].push(row);
+                if (!timeGroups[key]) timeGroups[key] = [];
+                timeGroups[key].push(row);
             });
 
-            const sortedKeys = Object.keys(groups).sort((a, b) => {
+            // Сортируем группы по времени начала
+            const sortedKeys = Object.keys(timeGroups).sort((a, b) => {
                 return a.split('–')[0].localeCompare(b.split('–')[0]);
             });
 
             let html = '';
 
             sortedKeys.forEach((key) => {
-                const rows = groups[key];
+                const rows = timeGroups[key];
                 const timeFrom = key.split('–')[0];
                 const timeTo = key.split('–')[1];
                 const status = getStationStatus(timeFrom, timeTo, kyivTime);
+
+                // Показываем только активные и будущие интервалы
+                if (status === 'past') return;
 
                 const isActive = status === 'active';
                 const panelClass = isActive ? 'active' : 'next';
                 const title = isActive ? 'Працюють зараз' : 'Наступні';
 
+                // Разделяем ДР и обычные станции
                 const stationItems = rows.filter(r => r.station !== 'ДР');
                 const eventRow = rows.find(r => r.station === 'ДР');
 
@@ -679,6 +667,16 @@
                 html += `</section>`;
             });
 
+            if (!html) {
+                html = `
+                    <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
+                        <div style="font-size:20px;margin-bottom:10px;">⏰</div>
+                        <div style="font-weight:600;color:#666;">Немає активних або майбутніх станцій</div>
+                        <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${currentTimeStr}</div>
+                    </div>
+                `;
+            }
+
             html += `<div class="update-time">🔄 Оновлено: ${currentTimeStr} (Київ)</div>`;
             container.innerHTML = html;
         }
@@ -695,6 +693,7 @@
             const data = await fetchSchedule();
             renderSchedule(data);
 
+            // Обновляем каждые 30 секунд
             setInterval(async () => {
                 const data = await fetchSchedule();
                 renderSchedule(data);
