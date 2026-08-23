@@ -524,18 +524,9 @@
             width: 100% !important;
         }
         
+        /* Убираем области для клика по экрану */
         .story-tap-area {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 40%;
-            z-index: 5;
-        }
-        .story-tap-left {
-            left: 0;
-        }
-        .story-tap-right {
-            right: 0;
+            display: none;
         }
         
         .story-next-btn {
@@ -1022,9 +1013,6 @@
         
         <div id="storySlides"></div>
         
-        <div class="story-tap-area story-tap-left" id="storyTapLeft"></div>
-        <div class="story-tap-area story-tap-right" id="storyTapRight"></div>
-        
         <div class="story-indicators" id="storyIndicators"></div>
         
         <button class="story-next-btn" id="storyNextBtn">
@@ -1316,7 +1304,7 @@
             const btn = document.getElementById('storyNextBtn');
             const btnText = document.getElementById('btnText');
             if (currentStoryIndex === storiesData.length - 1) {
-                btnText.textContent = 'ДО РОЗКЛАДУ';
+                btnText.textContent = 'ЗГОРНУТИ З ПРАВИЛАМИ';
                 btn.classList.add('finish');
             } else {
                 btnText.textContent = 'ДАЛІ';
@@ -1342,14 +1330,7 @@
         }
 
         function prevStory() {
-            if (isStoryTransitioning) return;
-            if (currentStoryIndex > 0) {
-                isStoryTransitioning = true;
-                updateStoryUI(currentStoryIndex - 1);
-                setTimeout(() => {
-                    isStoryTransitioning = false;
-                }, 400);
-            }
+            // Функция prevStory больше не используется, но оставлена для совместимости
         }
 
         function closeStories() {
@@ -1540,8 +1521,8 @@
 
         // Обработчики событий
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('storyTapLeft').addEventListener('click', prevStory);
-            document.getElementById('storyTapRight').addEventListener('click', nextStory);
+            // Убираем обработчики кликов по областям экрана
+            // Оставляем только кнопку ДАЛІ
             document.getElementById('storyNextBtn').addEventListener('click', nextStory);
             
             document.addEventListener('keydown', function(e) {
@@ -1551,7 +1532,7 @@
                         nextStory();
                     } else if (e.key === 'ArrowLeft') {
                         e.preventDefault();
-                        prevStory();
+                        // Отключаем переключение назад
                     }
                 }
                 if (e.key === 'Escape') {
@@ -1559,18 +1540,8 @@
                 }
             });
 
-            let touchStartX = 0;
-            const overlay = document.getElementById('storiesOverlay');
-            overlay.addEventListener('touchstart', function(e) {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
-            overlay.addEventListener('touchend', function(e) {
-                const diff = touchStartX - e.changedTouches[0].screenX;
-                if (Math.abs(diff) > 30) {
-                    if (diff > 0) nextStory();
-                    else prevStory();
-                }
-            }, { passive: true });
+            // Убираем обработчики свайпов
+            // Оставляем только кнопку
 
             document.getElementById('modalClose').addEventListener('click', closeMap);
             document.getElementById('mapModal').addEventListener('click', function(e) {
