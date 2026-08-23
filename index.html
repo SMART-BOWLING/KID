@@ -629,6 +629,7 @@
                 html += `<p class="section-title">${title}</p>`;
 
                 if (isActive) {
+                    // Активные станции - показываем все в 2 колонки
                     html += `<div class="grid-current">`;
                     stationItems.forEach(st => {
                         const style = getStationStyle(st.station);
@@ -640,9 +641,9 @@
                     });
                     html += `</div>`;
                 } else {
+                    // Будущие станции - показываем все в 4 колонки
                     html += `<div class="grid-next">`;
-                    const displayStations = stationItems.slice(0, 8);
-                    displayStations.forEach(st => {
+                    stationItems.forEach(st => {
                         const style = getStationStyle(st.station);
                         const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
                         html += `<article class="station small">`;
