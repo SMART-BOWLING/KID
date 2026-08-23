@@ -70,7 +70,7 @@
             filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .12));
         }
         
-        /* Стили для сторис - полноэкранные */
+        /* ===== СТИЛИ ДЛЯ СТОРИС ===== */
         .stories-overlay {
             display: none;
             position: fixed;
@@ -78,7 +78,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #1a1a2e;
             z-index: 9999;
             touch-action: none;
             flex-direction: column;
@@ -86,40 +85,209 @@
         .stories-overlay.active {
             display: flex;
         }
+        
+        /* Фон для сторис - зеленый (активный) */
+        .stories-bg-green {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9, #a5d6a7, #81c784);
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        .stories-bg-green.active {
+            opacity: 1;
+        }
+        
+        /* Фон для сторис - синий (будущий) */
+        .stories-bg-blue {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb, #90caf9, #64b5f6);
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        .stories-bg-blue.active {
+            opacity: 1;
+        }
+        
+        /* Декоративные элементы для зеленого фона */
+        .stories-bg-green .deco {
+            background: rgba(46, 135, 29, 0.1);
+        }
+        .stories-bg-blue .deco {
+            background: rgba(18, 121, 191, 0.1);
+        }
+        
+        /* Декоративные круги */
+        .story-circle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            transition: all 0.6s ease;
+            z-index: 1;
+        }
+        .story-circle-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            right: -80px;
+            animation: pulseCircle 8s ease-in-out infinite;
+        }
+        .story-circle-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -50px;
+            left: -60px;
+            animation: pulseCircle 10s ease-in-out infinite reverse;
+        }
+        .story-circle-3 {
+            width: 150px;
+            height: 150px;
+            top: 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: pulseCircle 12s ease-in-out infinite alternate;
+        }
+        
+        /* Цвета кругов для зеленого фона */
+        .stories-bg-green .story-circle-1 {
+            background: radial-gradient(circle, rgba(46, 135, 29, 0.15), transparent);
+        }
+        .stories-bg-green .story-circle-2 {
+            background: radial-gradient(circle, rgba(107, 183, 47, 0.12), transparent);
+        }
+        .stories-bg-green .story-circle-3 {
+            background: radial-gradient(circle, rgba(46, 135, 29, 0.08), transparent);
+        }
+        
+        /* Цвета кругов для синего фона */
+        .stories-bg-blue .story-circle-1 {
+            background: radial-gradient(circle, rgba(18, 121, 191, 0.15), transparent);
+        }
+        .stories-bg-blue .story-circle-2 {
+            background: radial-gradient(circle, rgba(37, 138, 210, 0.12), transparent);
+        }
+        .stories-bg-blue .story-circle-3 {
+            background: radial-gradient(circle, rgba(18, 121, 191, 0.08), transparent);
+        }
+        
+        @keyframes pulseCircle {
+            0% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.3) rotate(180deg); opacity: 0.6; }
+            100% { transform: scale(1) rotate(360deg); opacity: 0.3; }
+        }
+        
         .story-slide {
             display: none;
             width: 100%;
             height: 100%;
-            padding: 60px 30px 120px;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: white;
+            padding: 70px 30px 140px;
+            color: #1a1a2e;
             text-align: center;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
             flex: 1;
+            z-index: 2;
         }
         .story-slide.active {
             display: flex;
         }
+        
+        .story-slide.active .story-content {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .story-content {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
         .story-slide img {
-            max-width: 90%;
-            max-height: 60vh;
-            border-radius: 16px;
+            max-width: 85%;
+            max-height: 50vh;
+            border-radius: 20px;
             margin-bottom: 30px;
             object-fit: contain;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            border: 3px solid rgba(255,255,255,0.5);
         }
+        
         .story-slide .story-text {
-            font-size: 24px;
+            font-size: 26px;
             line-height: 1.5;
-            font-weight: 600;
+            font-weight: 700;
             max-width: 90%;
             word-wrap: break-word;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            padding: 16px 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255,255,255,0.5);
         }
+        
+        /* Стили для текста на зеленом фоне */
+        .stories-bg-green.active ~ .story-slide .story-text {
+            color: #1e4a0e;
+            background: rgba(255,255,255,0.9);
+        }
+        
+        /* Стили для текста на синем фоне */
+        .stories-bg-blue.active ~ .story-slide .story-text {
+            color: #0a2a4a;
+            background: rgba(255,255,255,0.9);
+        }
+        
         .story-slide .story-text.large {
-            font-size: 28px;
+            font-size: 32px;
+        }
+        
+        .story-slide .story-text .highlight-green {
+            background: linear-gradient(135deg, #2e871d, #6bb72f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .story-slide .story-text .highlight-blue {
+            background: linear-gradient(135deg, #1279bf, #258ad2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .story-slide .story-text .highlight-gold {
+            background: linear-gradient(135deg, #ffc542, #f06a2f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .story-slide .story-text .highlight-pink {
+            background: linear-gradient(135deg, #e33b85, #8038bd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         /* Прогресс-бары сверху */
@@ -129,22 +297,37 @@
             left: 16px;
             right: 16px;
             display: flex;
-            gap: 4px;
+            gap: 5px;
             z-index: 10;
         }
         .story-progress-bar {
             flex: 1;
             height: 4px;
-            background: rgba(255,255,255,0.3);
+            background: rgba(0,0,0,0.15);
             border-radius: 4px;
             overflow: hidden;
         }
         .story-progress-bar .fill {
             height: 100%;
-            background: white;
             width: 0%;
             transition: width 0.3s ease;
+            border-radius: 4px;
         }
+        /* Цвет прогресса для зеленого фона */
+        .stories-bg-green.active ~ .story-progress .fill {
+            background: linear-gradient(90deg, #2e871d, #6bb72f);
+        }
+        .stories-bg-green.active ~ .story-progress .done .fill {
+            background: linear-gradient(90deg, #2e871d, #6bb72f);
+        }
+        /* Цвет прогресса для синего фона */
+        .stories-bg-blue.active ~ .story-progress .fill {
+            background: linear-gradient(90deg, #1279bf, #258ad2);
+        }
+        .stories-bg-blue.active ~ .story-progress .done .fill {
+            background: linear-gradient(90deg, #1279bf, #258ad2);
+        }
+        
         .story-progress-bar.done .fill {
             width: 100% !important;
         }
@@ -168,92 +351,144 @@
             right: 0;
         }
         
-        /* Кнопка ДАЛІ внизу */
+        /* Кнопка ДАЛІ */
         .story-next-btn {
             position: absolute;
             bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
-            padding: 14px 40px;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 30px;
+            padding: 16px 44px;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 50px;
             color: white;
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             font-family: inherit;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            min-width: 120px;
+            min-width: 140px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .story-next-btn:hover {
-            background: rgba(255,255,255,0.3);
             transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
         }
         .story-next-btn:active {
             transform: translateX(-50%) scale(0.95);
         }
         .story-next-btn .arrow {
             display: inline-block;
-            margin-left: 8px;
-            transition: transform 0.3s;
+            margin-left: 10px;
+            transition: transform 0.3s ease;
         }
         .story-next-btn:hover .arrow {
-            transform: translateX(4px);
+            transform: translateX(6px);
         }
-        .story-next-btn.finish {
-            background: rgba(46, 135, 29, 0.6);
-            border-color: rgba(46, 135, 29, 0.8);
+        
+        /* Стили кнопки для зеленого фона */
+        .stories-bg-green.active ~ .story-next-btn {
+            background: rgba(46, 135, 29, 0.7);
+            border-color: rgba(46, 135, 29, 0.5);
         }
+        .stories-bg-green.active ~ .story-next-btn:hover {
+            background: rgba(46, 135, 29, 0.85);
+        }
+        .stories-bg-green.active ~ .story-next-btn.finish {
+            background: linear-gradient(135deg, rgba(46, 135, 29, 0.8), rgba(107, 183, 47, 0.6));
+            border-color: rgba(46, 135, 29, 0.5);
+        }
+        
+        /* Стили кнопки для синего фона */
+        .stories-bg-blue.active ~ .story-next-btn {
+            background: rgba(18, 121, 191, 0.7);
+            border-color: rgba(18, 121, 191, 0.5);
+        }
+        .stories-bg-blue.active ~ .story-next-btn:hover {
+            background: rgba(18, 121, 191, 0.85);
+        }
+        .stories-bg-blue.active ~ .story-next-btn.finish {
+            background: linear-gradient(135deg, rgba(18, 121, 191, 0.8), rgba(37, 138, 210, 0.6));
+            border-color: rgba(18, 121, 191, 0.5);
+        }
+        
         .story-next-btn.finish:hover {
-            background: rgba(46, 135, 29, 0.8);
+            transform: translateX(-50%) scale(1.05);
         }
         
         /* Индикаторы снизу */
         .story-indicators {
             position: absolute;
-            bottom: 100px;
+            bottom: 105px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 10px;
+            gap: 12px;
             z-index: 10;
         }
         .story-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transition: background 0.3s, transform 0.3s;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.1);
         }
-        .story-dot.active {
-            background: white;
-            transform: scale(1.2);
+        /* Цвета точек для зеленого фона */
+        .stories-bg-green.active ~ .story-indicators .story-dot {
+            background: rgba(46, 135, 29, 0.25);
         }
-        .story-dot.done {
-            background: rgba(255,255,255,0.6);
+        .stories-bg-green.active ~ .story-indicators .story-dot.active {
+            background: #2e871d;
+            transform: scale(1.3);
+            box-shadow: 0 0 20px rgba(46, 135, 29, 0.3);
+        }
+        .stories-bg-green.active ~ .story-indicators .story-dot.done {
+            background: rgba(46, 135, 29, 0.6);
+        }
+        
+        /* Цвета точек для синего фона */
+        .stories-bg-blue.active ~ .story-indicators .story-dot {
+            background: rgba(18, 121, 191, 0.25);
+        }
+        .stories-bg-blue.active ~ .story-indicators .story-dot.active {
+            background: #1279bf;
+            transform: scale(1.3);
+            box-shadow: 0 0 20px rgba(18, 121, 191, 0.3);
+        }
+        .stories-bg-blue.active ~ .story-indicators .story-dot.done {
+            background: rgba(18, 121, 191, 0.6);
         }
         
         /* Счетчик сторис */
         .story-counter {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 22px;
+            right: 22px;
             z-index: 10;
-            color: rgba(255,255,255,0.6);
             font-size: 14px;
-            font-weight: 600;
-            background: rgba(0,0,0,0.3);
-            padding: 6px 14px;
-            border-radius: 20px;
-            backdrop-filter: blur(5px);
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            letter-spacing: 0.5px;
+        }
+        /* Цвет счетчика для зеленого фона */
+        .stories-bg-green.active ~ .story-counter {
+            color: #1e4a0e;
+            background: rgba(255,255,255,0.7);
+        }
+        /* Цвет счетчика для синего фона */
+        .stories-bg-blue.active ~ .story-counter {
+            color: #0a2a4a;
+            background: rgba(255,255,255,0.7);
         }
         
-        /* Стили для расписания */
+        /* ===== СТИЛИ ДЛЯ РАСПИСАНИЯ ===== */
         .schedule-wrapper {
             display: none;
         }
@@ -343,21 +578,6 @@
             gap: 18px;
             padding: 8px 20px;
             border-color: rgba(174, 210, 235, .7);
-        }
-        .station .map-indicator {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            font-size: 12px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: none;
-            place-items: center;
-        }
-        .station.has-map .map-indicator {
-            display: grid;
         }
         .badge {
             width: 60px;
@@ -583,27 +803,28 @@
                 margin-top: 4px;
             }
             .story-slide {
-                padding: 50px 20px 100px;
+                padding: 60px 20px 120px;
             }
             .story-slide .story-text {
                 font-size: 20px;
+                padding: 14px 20px;
             }
             .story-slide .story-text.large {
                 font-size: 24px;
             }
             .story-slide img {
-                max-height: 50vh;
-                margin-bottom: 20px;
+                max-height: 45vh;
+                margin-bottom: 24px;
             }
             .story-next-btn {
-                padding: 12px 30px;
+                padding: 14px 32px;
                 font-size: 16px;
                 bottom: 30px;
-                min-width: 100px;
+                min-width: 110px;
             }
             .story-indicators {
-                bottom: 80px;
-                gap: 8px;
+                bottom: 90px;
+                gap: 10px;
             }
             .story-dot {
                 width: 8px;
@@ -612,8 +833,30 @@
             .story-counter {
                 font-size: 12px;
                 padding: 4px 12px;
-                top: 16px;
-                right: 16px;
+                top: 18px;
+                right: 18px;
+            }
+            .story-progress {
+                top: 12px;
+                left: 12px;
+                right: 12px;
+                gap: 4px;
+            }
+            .story-circle-1 {
+                width: 200px;
+                height: 200px;
+                top: -80px;
+                right: -60px;
+            }
+            .story-circle-2 {
+                width: 150px;
+                height: 150px;
+                bottom: -40px;
+                left: -40px;
+            }
+            .story-circle-3 {
+                width: 100px;
+                height: 100px;
             }
         }
         @media (max-width: 380px) {
@@ -685,42 +928,48 @@
                 margin-top: 3px;
             }
             .story-slide {
-                padding: 40px 15px 80px;
+                padding: 50px 15px 100px;
             }
             .story-slide .story-text {
                 font-size: 17px;
+                padding: 12px 16px;
             }
             .story-slide .story-text.large {
                 font-size: 20px;
             }
             .story-slide img {
-                max-height: 40vh;
-                margin-bottom: 15px;
+                max-height: 38vh;
+                margin-bottom: 18px;
             }
             .story-next-btn {
-                padding: 10px 24px;
+                padding: 12px 24px;
                 font-size: 14px;
                 bottom: 24px;
-                min-width: 80px;
+                min-width: 90px;
             }
             .story-indicators {
-                bottom: 65px;
-                gap: 6px;
+                bottom: 75px;
+                gap: 8px;
             }
             .story-dot {
                 width: 6px;
                 height: 6px;
             }
+            .story-counter {
+                font-size: 11px;
+                padding: 3px 10px;
+            }
         }
         @media (max-width: 340px) {
             .story-slide .story-text {
                 font-size: 15px;
+                padding: 10px 14px;
             }
             .story-slide .story-text.large {
                 font-size: 17px;
             }
             .story-next-btn {
-                padding: 8px 20px;
+                padding: 10px 20px;
                 font-size: 12px;
                 min-width: 70px;
             }
@@ -756,6 +1005,18 @@
 
     <!-- Полноэкранные сторис -->
     <div class="stories-overlay" id="storiesOverlay">
+        <!-- Фоны -->
+        <div class="stories-bg-green" id="bgGreen">
+            <div class="story-circle story-circle-1"></div>
+            <div class="story-circle story-circle-2"></div>
+            <div class="story-circle story-circle-3"></div>
+        </div>
+        <div class="stories-bg-blue" id="bgBlue">
+            <div class="story-circle story-circle-1"></div>
+            <div class="story-circle story-circle-2"></div>
+            <div class="story-circle story-circle-3"></div>
+        </div>
+        
         <div class="story-progress" id="storyProgress"></div>
         <div class="story-counter" id="storyCounter">1/3</div>
         
@@ -897,35 +1158,51 @@
             overlay.classList.add('active');
             isStoriesActive = true;
 
-            // Скрываем расписание
             document.getElementById('scheduleWrapper').classList.remove('visible');
 
-            // Создаем слайды
             slidesContainer.innerHTML = '';
             stories.forEach((story, index) => {
                 const slide = document.createElement('div');
                 slide.className = 'story-slide' + (index === 0 ? ' active' : '');
                 slide.dataset.index = index;
                 
+                const content = document.createElement('div');
+                content.className = 'story-content';
+                
                 if (story.image) {
                     const img = document.createElement('img');
                     img.src = story.image;
                     img.alt = 'Сторис';
                     img.loading = 'lazy';
-                    slide.appendChild(img);
+                    content.appendChild(img);
                 }
                 
                 if (story.text) {
                     const text = document.createElement('div');
                     text.className = 'story-text' + (story.text.length < 40 ? ' large' : '');
-                    text.textContent = story.text;
-                    slide.appendChild(text);
+                    let formattedText = story.text;
+                    const highlights = [
+                        { find: /Кідландія/gi, replace: '<span class="highlight-gold">Кідландія</span>' },
+                        { find: /Kidslandia/gi, replace: '<span class="highlight-gold">Kidslandia</span>' },
+                        { find: /діти/gi, replace: '<span class="highlight-green">діти</span>' },
+                        { find: /дітей/gi, replace: '<span class="highlight-green">дітей</span>' },
+                        { find: /дитина/gi, replace: '<span class="highlight-green">дитина</span>' },
+                        { find: /дитини/gi, replace: '<span class="highlight-green">дитини</span>' },
+                        { find: /свято/gi, replace: '<span class="highlight-pink">свято</span>' },
+                        { find: /розваги/gi, replace: '<span class="highlight-blue">розваги</span>' },
+                        { find: /веселощі/gi, replace: '<span class="highlight-gold">веселощі</span>' }
+                    ];
+                    highlights.forEach(h => {
+                        formattedText = formattedText.replace(h.find, h.replace);
+                    });
+                    text.innerHTML = formattedText;
+                    content.appendChild(text);
                 }
                 
+                slide.appendChild(content);
                 slidesContainer.appendChild(slide);
             });
 
-            // Создаем прогресс-бары
             progressContainer.innerHTML = '';
             stories.forEach((_, index) => {
                 const bar = document.createElement('div');
@@ -934,7 +1211,6 @@
                 progressContainer.appendChild(bar);
             });
 
-            // Создаем индикаторы
             indicatorsContainer.innerHTML = '';
             stories.forEach((_, index) => {
                 const dot = document.createElement('div');
@@ -942,7 +1218,6 @@
                 indicatorsContainer.appendChild(dot);
             });
 
-            // Обновляем счетчик
             counter.textContent = `1/${stories.length}`;
 
             currentStoryIndex = 0;
@@ -955,6 +1230,18 @@
             const bars = document.querySelectorAll('.story-progress-bar');
             const dots = document.querySelectorAll('.story-dot');
             const counter = document.getElementById('storyCounter');
+            
+            // Чередуем фоны: четные - зеленый, нечетные - синий
+            const bgGreen = document.getElementById('bgGreen');
+            const bgBlue = document.getElementById('bgBlue');
+            
+            if (index % 2 === 0) {
+                bgGreen.classList.add('active');
+                bgBlue.classList.remove('active');
+            } else {
+                bgBlue.classList.add('active');
+                bgGreen.classList.remove('active');
+            }
 
             slides.forEach((slide, i) => {
                 slide.classList.toggle('active', i === index);
@@ -969,7 +1256,6 @@
                 } else if (i === index) {
                     bar.classList.add('active');
                     fill.style.width = '0%';
-                    // Анимация заполнения
                     setTimeout(() => {
                         fill.style.width = '100%';
                     }, 50);
@@ -993,7 +1279,7 @@
             const btn = document.getElementById('storyNextBtn');
             const btnText = document.getElementById('btnText');
             if (currentStoryIndex === storiesData.length - 1) {
-                btnText.textContent = 'ПЕРЕЙТИ ДО РОЗКЛАДУ';
+                btnText.textContent = 'ДО РОЗКЛАДУ';
                 btn.classList.add('finish');
             } else {
                 btnText.textContent = 'ДАЛІ';
@@ -1009,12 +1295,12 @@
                 updateStoryUI(currentStoryIndex + 1);
                 setTimeout(() => {
                     isStoryTransitioning = false;
-                }, 300);
+                }, 400);
             } else {
                 closeStories();
                 setTimeout(() => {
                     isStoryTransitioning = false;
-                }, 300);
+                }, 400);
             }
         }
 
@@ -1025,7 +1311,7 @@
                 updateStoryUI(currentStoryIndex - 1);
                 setTimeout(() => {
                     isStoryTransitioning = false;
-                }, 300);
+                }, 400);
             }
         }
 
@@ -1034,7 +1320,6 @@
             overlay.classList.remove('active');
             isStoriesActive = false;
             
-            // Показываем расписание
             document.getElementById('scheduleWrapper').classList.add('visible');
             document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
         }
@@ -1102,9 +1387,7 @@
                 stationItems.forEach(st => {
                     const style = getStationStyle(st.station);
                     const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
-                    const hasMap = maps[st.station] ? 'has-map' : '';
-                    html += `<article class="station ${hasMap}" data-station="${st.station}">`;
-                    html += `<div class="map-indicator">🗺️</div>`;
+                    html += `<article class="station" data-station="${st.station}">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     const displayName = st.station.replace(/-/g, ' ');
                     html += `<div class="station-name">${displayName}</div>`;
@@ -1115,10 +1398,8 @@
                 if (eventRow) {
                     const style = getStationStyle(eventRow.station);
                     const logoHtml = eventRow.logo ? `<img src="${eventRow.logo}" alt="${eventRow.station}">` : style.emoji;
-                    const hasMap = maps[eventRow.station] ? 'has-map' : '';
                     html += `<div class="grid-stations">`;
-                    html += `<article class="station wide ${hasMap}" data-station="${eventRow.station}">`;
-                    html += `<div class="map-indicator">🗺️</div>`;
+                    html += `<article class="station wide" data-station="${eventRow.station}">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     const displayName = eventRow.station.replace(/-/g, ' ');
                     html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
@@ -1191,20 +1472,15 @@
 
             settingsData = data.settings || { logos: {}, maps: {} };
 
-            // Сначала рендерим расписание (оно будет скрыто)
             renderSchedule(data.schedule, settingsData.maps);
 
-            // Показываем сторис если есть
             if (data.stories && data.stories.length > 0) {
                 renderStories(data.stories);
-                // Расписание скрыто пока не закончатся сторис
             } else {
-                // Если нет сторис - сразу показываем расписание
                 document.getElementById('scheduleWrapper').classList.add('visible');
                 document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
             }
 
-            // Обновляем каждые 30 секунд
             setInterval(async () => {
                 const newData = await fetchData();
                 if (newData.success) {
@@ -1216,14 +1492,10 @@
 
         // Обработчики событий
         document.addEventListener('DOMContentLoaded', function() {
-            // Клики по зонам для сторис
             document.getElementById('storyTapLeft').addEventListener('click', prevStory);
             document.getElementById('storyTapRight').addEventListener('click', nextStory);
-            
-            // Кнопка ДАЛІ
             document.getElementById('storyNextBtn').addEventListener('click', nextStory);
             
-            // Клавиши на клавиатуре
             document.addEventListener('keydown', function(e) {
                 if (isStoriesActive) {
                     if (e.key === 'ArrowRight' || e.key === ' ') {
@@ -1239,7 +1511,6 @@
                 }
             });
 
-            // Свайпы для сторис
             let touchStartX = 0;
             const overlay = document.getElementById('storiesOverlay');
             overlay.addEventListener('touchstart', function(e) {
@@ -1253,7 +1524,6 @@
                 }
             }, { passive: true });
 
-            // Обработчики для модального окна
             document.getElementById('modalClose').addEventListener('click', closeMap);
             document.getElementById('mapModal').addEventListener('click', function(e) {
                 if (e.target === this) closeMap();
