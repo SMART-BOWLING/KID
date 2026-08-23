@@ -15,8 +15,9 @@
             background: #ffffff;
             font-family: "Arial Rounded MT Bold", "Nunito", "Trebuchet MS", Arial, sans-serif;
             color: #101733;
-            padding: 10px 6px;
+            padding: 0;
             overflow-x: hidden;
+            margin: 0;
         }
         .container {
             max-width: 500px;
@@ -69,26 +70,27 @@
             filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .12));
         }
         
-        /* Стили для сторис */
-        .stories-container {
-            position: relative;
-            width: 100%;
-            background: #1a1a2e;
-            border-radius: 20px;
-            overflow: hidden;
-            margin-bottom: 20px;
+        /* Стили для сторис - полноэкранные */
+        .stories-overlay {
             display: none;
-            min-height: 400px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #1a1a2e;
+            z-index: 9999;
             touch-action: none;
+            flex-direction: column;
         }
-        .stories-container.active {
-            display: block;
+        .stories-overlay.active {
+            display: flex;
         }
         .story-slide {
             display: none;
             width: 100%;
-            min-height: 400px;
-            padding: 30px 20px;
+            height: 100%;
+            padding: 60px 30px 120px;
             background: linear-gradient(135deg, #1a1a2e, #16213e);
             color: white;
             text-align: center;
@@ -96,61 +98,67 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            flex: 1;
         }
         .story-slide.active {
             display: flex;
         }
         .story-slide img {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            max-width: 90%;
+            max-height: 60vh;
+            border-radius: 16px;
+            margin-bottom: 30px;
             object-fit: contain;
         }
         .story-slide .story-text {
-            font-size: 18px;
-            line-height: 1.4;
+            font-size: 24px;
+            line-height: 1.5;
             font-weight: 600;
-            max-width: 100%;
+            max-width: 90%;
             word-wrap: break-word;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         .story-slide .story-text.large {
-            font-size: 22px;
+            font-size: 28px;
         }
+        
+        /* Прогресс-бары сверху */
         .story-progress {
             position: absolute;
-            top: 12px;
-            left: 12px;
-            right: 12px;
+            top: 16px;
+            left: 16px;
+            right: 16px;
             display: flex;
             gap: 4px;
             z-index: 10;
         }
         .story-progress-bar {
             flex: 1;
-            height: 3px;
+            height: 4px;
             background: rgba(255,255,255,0.3);
-            border-radius: 3px;
+            border-radius: 4px;
             overflow: hidden;
         }
         .story-progress-bar .fill {
             height: 100%;
             background: white;
             width: 0%;
-            transition: width 0.1s linear;
+            transition: width 0.3s ease;
+        }
+        .story-progress-bar.done .fill {
+            width: 100% !important;
         }
         .story-progress-bar.active .fill {
-            animation: progress 4s linear forwards;
+            width: 100% !important;
+            transition: width 4s linear;
         }
-        @keyframes progress {
-            from { width: 0%; }
-            to { width: 100%; }
-        }
+        
+        /* Зоны для тапов */
         .story-tap-area {
             position: absolute;
             top: 0;
             bottom: 0;
-            width: 50%;
+            width: 40%;
             z-index: 5;
         }
         .story-tap-left {
@@ -159,37 +167,105 @@
         .story-tap-right {
             right: 0;
         }
+        
+        /* Кнопка ДАЛІ внизу */
+        .story-next-btn {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            padding: 14px 40px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 30px;
+            color: white;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            min-width: 120px;
+        }
+        .story-next-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-50%) scale(1.05);
+        }
+        .story-next-btn:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+        .story-next-btn .arrow {
+            display: inline-block;
+            margin-left: 8px;
+            transition: transform 0.3s;
+        }
+        .story-next-btn:hover .arrow {
+            transform: translateX(4px);
+        }
+        .story-next-btn.finish {
+            background: rgba(46, 135, 29, 0.6);
+            border-color: rgba(46, 135, 29, 0.8);
+        }
+        .story-next-btn.finish:hover {
+            background: rgba(46, 135, 29, 0.8);
+        }
+        
+        /* Индикаторы снизу */
         .story-indicators {
             position: absolute;
-            bottom: 20px;
+            bottom: 100px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 8px;
+            gap: 10px;
             z-index: 10;
         }
         .story-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.4);
-            transition: background 0.3s;
+            background: rgba(255,255,255,0.3);
+            transition: background 0.3s, transform 0.3s;
         }
         .story-dot.active {
             background: white;
+            transform: scale(1.2);
+        }
+        .story-dot.done {
+            background: rgba(255,255,255,0.6);
+        }
+        
+        /* Счетчик сторис */
+        .story-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 14px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
         }
         
         /* Стили для расписания */
+        .schedule-wrapper {
+            display: none;
+        }
+        .schedule-wrapper.visible {
+            display: block;
+        }
         .panel {
             border: 1.5px solid;
             border-radius: 20px;
             padding: 16px 10px 16px;
             background: #ffffff;
             box-shadow: 0 8px 20px rgba(35, 65, 104, .08);
-            display: none;
-        }
-        .panel.visible {
-            display: block;
         }
         .panel+.panel {
             margin-top: 12px;
@@ -393,8 +469,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
+            background: rgba(0,0,0,0.85);
+            z-index: 10000;
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -421,25 +497,23 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: rgba(0,0,0,0.1);
             border: none;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             display: grid;
             place-items: center;
             color: #333;
+            transition: background 0.2s;
         }
         .modal-close:hover {
             background: rgba(0,0,0,0.2);
         }
         
         @media (max-width: 480px) {
-            body {
-                padding: 8px 4px;
-            }
             .container {
                 padding: 12px 6px 24px;
                 border-radius: 24px;
@@ -509,23 +583,40 @@
                 margin-top: 4px;
             }
             .story-slide {
-                min-height: 350px;
-                padding: 25px 15px;
+                padding: 50px 20px 100px;
             }
             .story-slide .story-text {
-                font-size: 16px;
+                font-size: 20px;
             }
             .story-slide .story-text.large {
-                font-size: 19px;
+                font-size: 24px;
             }
             .story-slide img {
-                max-height: 250px;
+                max-height: 50vh;
+                margin-bottom: 20px;
+            }
+            .story-next-btn {
+                padding: 12px 30px;
+                font-size: 16px;
+                bottom: 30px;
+                min-width: 100px;
+            }
+            .story-indicators {
+                bottom: 80px;
+                gap: 8px;
+            }
+            .story-dot {
+                width: 8px;
+                height: 8px;
+            }
+            .story-counter {
+                font-size: 12px;
+                padding: 4px 12px;
+                top: 16px;
+                right: 16px;
             }
         }
         @media (max-width: 380px) {
-            body {
-                padding: 6px 3px;
-            }
             .container {
                 padding: 10px 4px 20px;
             }
@@ -594,17 +685,44 @@
                 margin-top: 3px;
             }
             .story-slide {
-                min-height: 300px;
-                padding: 20px 12px;
+                padding: 40px 15px 80px;
             }
             .story-slide .story-text {
+                font-size: 17px;
+            }
+            .story-slide .story-text.large {
+                font-size: 20px;
+            }
+            .story-slide img {
+                max-height: 40vh;
+                margin-bottom: 15px;
+            }
+            .story-next-btn {
+                padding: 10px 24px;
                 font-size: 14px;
+                bottom: 24px;
+                min-width: 80px;
+            }
+            .story-indicators {
+                bottom: 65px;
+                gap: 6px;
+            }
+            .story-dot {
+                width: 6px;
+                height: 6px;
+            }
+        }
+        @media (max-width: 340px) {
+            .story-slide .story-text {
+                font-size: 15px;
             }
             .story-slide .story-text.large {
                 font-size: 17px;
             }
-            .story-slide img {
-                max-height: 200px;
+            .story-next-btn {
+                padding: 8px 20px;
+                font-size: 12px;
+                min-width: 70px;
             }
         }
     </style>
@@ -625,22 +743,33 @@
             <span style="color:#7b2fc0">К</span><span style="color:#f06a2f">і</span><span style="color:#6bb72f">д</span><span style="color:#ffc928">л</span><span style="color:#258ad2">а</span><span style="color:#e33b85">н</span><span style="color:#8038bd">д</span><span style="color:#eb3c73">і</span><span style="color:#50bec3">я</span>
         </h1>
 
-        <!-- Контейнер для сторис -->
-        <div id="storiesContainer" class="stories-container">
-            <div class="story-progress" id="storyProgress"></div>
-            <div id="storySlides"></div>
-            <div class="story-tap-area story-tap-left" id="storyTapLeft"></div>
-            <div class="story-tap-area story-tap-right" id="storyTapRight"></div>
-            <div class="story-indicators" id="storyIndicators"></div>
-        </div>
-
-        <!-- Контейнер для расписания -->
-        <div id="scheduleContainer">
-            <div class="loading-state">
-                <div class="spinner"></div>
-                <div>Завантаження розкладу...</div>
+        <!-- Обертка для расписания -->
+        <div id="scheduleWrapper" class="schedule-wrapper">
+            <div id="scheduleContainer">
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <div>Завантаження розкладу...</div>
+                </div>
             </div>
         </div>
+    </div>
+
+    <!-- Полноэкранные сторис -->
+    <div class="stories-overlay" id="storiesOverlay">
+        <div class="story-progress" id="storyProgress"></div>
+        <div class="story-counter" id="storyCounter">1/3</div>
+        
+        <div id="storySlides"></div>
+        
+        <div class="story-tap-area story-tap-left" id="storyTapLeft"></div>
+        <div class="story-tap-area story-tap-right" id="storyTapRight"></div>
+        
+        <div class="story-indicators" id="storyIndicators"></div>
+        
+        <button class="story-next-btn" id="storyNextBtn">
+            <span id="btnText">ДАЛІ</span>
+            <span class="arrow">→</span>
+        </button>
     </div>
 
     <!-- Модальное окно для карты -->
@@ -656,9 +785,9 @@
 
         let storiesData = [];
         let currentStoryIndex = 0;
-        let storyTimer = null;
-        let isStoriesActive = false;
         let settingsData = { logos: {}, maps: {} };
+        let isStoriesActive = false;
+        let isStoryTransitioning = false;
 
         async function fetchData() {
             try {
@@ -753,18 +882,23 @@
 
         // ========== СТОРИС ==========
         function renderStories(stories) {
-            const container = document.getElementById('storiesContainer');
+            const overlay = document.getElementById('storiesOverlay');
             const slidesContainer = document.getElementById('storySlides');
             const progressContainer = document.getElementById('storyProgress');
             const indicatorsContainer = document.getElementById('storyIndicators');
+            const counter = document.getElementById('storyCounter');
 
             if (!stories || stories.length === 0) {
-                container.classList.remove('active');
+                overlay.classList.remove('active');
                 return;
             }
 
             storiesData = stories;
-            container.classList.add('active');
+            overlay.classList.add('active');
+            isStoriesActive = true;
+
+            // Скрываем расписание
+            document.getElementById('scheduleWrapper').classList.remove('visible');
 
             // Создаем слайды
             slidesContainer.innerHTML = '';
@@ -783,7 +917,7 @@
                 
                 if (story.text) {
                     const text = document.createElement('div');
-                    text.className = 'story-text' + (story.text.length < 30 ? ' large' : '');
+                    text.className = 'story-text' + (story.text.length < 40 ? ' large' : '');
                     text.textContent = story.text;
                     slide.appendChild(text);
                 }
@@ -795,7 +929,7 @@
             progressContainer.innerHTML = '';
             stories.forEach((_, index) => {
                 const bar = document.createElement('div');
-                bar.className = 'story-progress-bar' + (index === 0 ? ' active' : '');
+                bar.className = 'story-progress-bar';
                 bar.innerHTML = '<div class="fill"></div>';
                 progressContainer.appendChild(bar);
             });
@@ -804,74 +938,105 @@
             indicatorsContainer.innerHTML = '';
             stories.forEach((_, index) => {
                 const dot = document.createElement('div');
-                dot.className = 'story-dot' + (index === 0 ? ' active' : '');
+                dot.className = 'story-dot';
                 indicatorsContainer.appendChild(dot);
             });
 
+            // Обновляем счетчик
+            counter.textContent = `1/${stories.length}`;
+
             currentStoryIndex = 0;
-            showStory(0);
+            updateStoryUI(0);
+            updateButtonText();
         }
 
-        function showStory(index) {
+        function updateStoryUI(index) {
             const slides = document.querySelectorAll('.story-slide');
             const bars = document.querySelectorAll('.story-progress-bar');
             const dots = document.querySelectorAll('.story-dot');
+            const counter = document.getElementById('storyCounter');
 
             slides.forEach((slide, i) => {
                 slide.classList.toggle('active', i === index);
             });
 
             bars.forEach((bar, i) => {
-                bar.classList.toggle('active', i === index);
-                if (i !== index) {
-                    const fill = bar.querySelector('.fill');
+                bar.classList.remove('active', 'done');
+                const fill = bar.querySelector('.fill');
+                if (i < index) {
+                    bar.classList.add('done');
+                    fill.style.width = '100%';
+                } else if (i === index) {
+                    bar.classList.add('active');
+                    fill.style.width = '0%';
+                    // Анимация заполнения
+                    setTimeout(() => {
+                        fill.style.width = '100%';
+                    }, 50);
+                } else {
                     fill.style.width = '0%';
                 }
             });
 
             dots.forEach((dot, i) => {
-                dot.classList.toggle('active', i === index);
+                dot.classList.remove('active', 'done');
+                if (i < index) dot.classList.add('done');
+                else if (i === index) dot.classList.add('active');
             });
 
+            counter.textContent = `${index + 1}/${storiesData.length}`;
             currentStoryIndex = index;
-            
-            // Запускаем таймер для текущего сторис
-            clearTimeout(storyTimer);
-            if (index < storiesData.length - 1) {
-                storyTimer = setTimeout(() => {
-                    showStory(index + 1);
-                }, 4000);
+            updateButtonText();
+        }
+
+        function updateButtonText() {
+            const btn = document.getElementById('storyNextBtn');
+            const btnText = document.getElementById('btnText');
+            if (currentStoryIndex === storiesData.length - 1) {
+                btnText.textContent = 'ПЕРЕЙТИ ДО РОЗКЛАДУ';
+                btn.classList.add('finish');
             } else {
-                // Последний сторис - закрываем и показываем расписание
-                storyTimer = setTimeout(() => {
-                    closeStories();
-                }, 4000);
+                btnText.textContent = 'ДАЛІ';
+                btn.classList.remove('finish');
             }
         }
 
-        function closeStories() {
-            const container = document.getElementById('storiesContainer');
-            container.classList.remove('active');
-            isStoriesActive = false;
-            clearTimeout(storyTimer);
-            
-            // Показываем расписание
-            document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
-            document.getElementById('scheduleContainer').querySelector('.loading-state')?.remove();
-        }
-
         function nextStory() {
+            if (isStoryTransitioning) return;
+            isStoryTransitioning = true;
+
             if (currentStoryIndex < storiesData.length - 1) {
-                showStory(currentStoryIndex + 1);
+                updateStoryUI(currentStoryIndex + 1);
+                setTimeout(() => {
+                    isStoryTransitioning = false;
+                }, 300);
             } else {
                 closeStories();
+                setTimeout(() => {
+                    isStoryTransitioning = false;
+                }, 300);
             }
         }
 
         function prevStory() {
+            if (isStoryTransitioning) return;
             if (currentStoryIndex > 0) {
-                showStory(currentStoryIndex - 1);
+                isStoryTransitioning = true;
+                updateStoryUI(currentStoryIndex - 1);
+                setTimeout(() => {
+                    isStoryTransitioning = false;
+                }, 300);
             }
+        }
+
+        function closeStories() {
+            const overlay = document.getElementById('storiesOverlay');
+            overlay.classList.remove('active');
+            isStoriesActive = false;
+            
+            // Показываем расписание
+            document.getElementById('scheduleWrapper').classList.add('visible');
+            document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
         }
 
         // ========== РАСПИСАНИЕ ==========
@@ -895,7 +1060,6 @@
                 minute: '2-digit'
             });
 
-            // Группируем строки по времени
             const timeGroups = {};
             data.forEach(row => {
                 const key = `${row.timeFrom}–${row.timeTo}`;
@@ -903,7 +1067,6 @@
                 timeGroups[key].push(row);
             });
 
-            // Сортируем группы по времени начала
             const sortedKeys = Object.keys(timeGroups).sort((a, b) => {
                 return a.split('–')[0].localeCompare(b.split('–')[0]);
             });
@@ -925,7 +1088,7 @@
                 const stationItems = rows.filter(r => r.station !== 'ДР');
                 const eventRow = rows.find(r => r.station === 'ДР');
 
-                html += `<section class="panel ${panelClass} visible" aria-label="${title}">`;
+                html += `<section class="panel ${panelClass}" aria-label="${title}">`;
                 html += `<div class="time-row">`;
                 html += `<svg class="clock" viewBox="0 0 48 48" aria-hidden="true">
                             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -968,7 +1131,7 @@
 
             if (!html) {
                 html = `
-                    <div class="panel visible" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
+                    <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">⏰</div>
                         <div style="font-weight:600;color:#666;">Немає активних або майбутніх станцій</div>
                         <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${currentTimeStr}</div>
@@ -979,7 +1142,6 @@
             html += `<div class="update-time">🔄 Оновлено: ${currentTimeStr} (Київ)</div>`;
             container.innerHTML = html;
 
-            // Добавляем обработчики кликов на станции
             document.querySelectorAll('.station').forEach(el => {
                 el.addEventListener('click', function() {
                     const stationName = this.dataset.station;
@@ -1019,7 +1181,7 @@
             
             if (!data.success) {
                 container.innerHTML = `
-                    <div class="panel visible" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
+                    <div class="panel" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">❌</div>
                         <div style="font-weight:600;color:#c62828;">Помилка: ${data.error || 'Невідома помилка'}</div>
                     </div>
@@ -1027,23 +1189,18 @@
                 return;
             }
 
-            // Сохраняем настройки
             settingsData = data.settings || { logos: {}, maps: {} };
 
-            // Сначала показываем сторис
-            if (data.stories && data.stories.length > 0) {
-                renderStories(data.stories);
-                isStoriesActive = true;
-                
-                // Прячем расписание пока не закончатся сторис
-                document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
-            }
-
-            // Рендерим расписание (оно будет скрыто до окончания сторис)
+            // Сначала рендерим расписание (оно будет скрыто)
             renderSchedule(data.schedule, settingsData.maps);
 
-            // Если нет сторис, показываем расписание сразу
-            if (!data.stories || data.stories.length === 0) {
+            // Показываем сторис если есть
+            if (data.stories && data.stories.length > 0) {
+                renderStories(data.stories);
+                // Расписание скрыто пока не закончатся сторис
+            } else {
+                // Если нет сторис - сразу показываем расписание
+                document.getElementById('scheduleWrapper').classList.add('visible');
                 document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
             }
 
@@ -1057,31 +1214,49 @@
             }, 30000);
         }
 
-        // Обработчики для сторис
+        // Обработчики событий
         document.addEventListener('DOMContentLoaded', function() {
+            // Клики по зонам для сторис
             document.getElementById('storyTapLeft').addEventListener('click', prevStory);
             document.getElementById('storyTapRight').addEventListener('click', nextStory);
             
+            // Кнопка ДАЛІ
+            document.getElementById('storyNextBtn').addEventListener('click', nextStory);
+            
+            // Клавиши на клавиатуре
+            document.addEventListener('keydown', function(e) {
+                if (isStoriesActive) {
+                    if (e.key === 'ArrowRight' || e.key === ' ') {
+                        e.preventDefault();
+                        nextStory();
+                    } else if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        prevStory();
+                    }
+                }
+                if (e.key === 'Escape') {
+                    closeMap();
+                }
+            });
+
             // Свайпы для сторис
             let touchStartX = 0;
-            document.getElementById('storiesContainer').addEventListener('touchstart', function(e) {
+            const overlay = document.getElementById('storiesOverlay');
+            overlay.addEventListener('touchstart', function(e) {
                 touchStartX = e.changedTouches[0].screenX;
-            });
-            document.getElementById('storiesContainer').addEventListener('touchend', function(e) {
+            }, { passive: true });
+            overlay.addEventListener('touchend', function(e) {
                 const diff = touchStartX - e.changedTouches[0].screenX;
                 if (Math.abs(diff) > 30) {
                     if (diff > 0) nextStory();
                     else prevStory();
                 }
-            });
+            }, { passive: true });
 
             // Обработчики для модального окна
             document.getElementById('modalClose').addEventListener('click', closeMap);
             document.getElementById('mapModal').addEventListener('click', function(e) {
                 if (e.target === this) closeMap();
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') closeMap();
             });
         });
 
