@@ -55,10 +55,19 @@
             letter-spacing: 1px;
             line-height: .9;
             text-transform: uppercase;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            will-change: transform;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
         .logo span {
             display: inline-block;
             text-shadow: 0 2px 1px rgba(0, 0, 0, .06);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
         .star {
             position: absolute;
@@ -68,6 +77,8 @@
             height: 20px;
             color: #ffc542;
             filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .12));
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
         
         /* ===== СТИЛИ ДЛЯ СТОРИС ===== */
@@ -81,6 +92,8 @@
             z-index: 9999;
             touch-action: none;
             flex-direction: column;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
         .stories-overlay.active {
             display: flex;
@@ -176,6 +189,8 @@
             position: relative;
             flex: 1;
             z-index: 2;
+            backface-visibility: hidden;
+            transform: translateZ(0);
         }
         .story-slide.active {
             display: flex;
@@ -331,6 +346,10 @@
             min-width: 140px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.1);
             text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            backface-visibility: hidden;
+            transform: translateX(-50%) translateZ(0);
         }
         .story-next-btn:hover {
             transform: translateX(-50%) scale(1.05);
@@ -458,7 +477,6 @@
             padding: 16px 8px 16px;
         }
         
-        /* Новая строка: время + заголовок в одну строку */
         .time-row {
             display: flex;
             align-items: center;
@@ -519,6 +537,7 @@
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
+            -webkit-tap-highlight-color: transparent;
         }
         .station:active {
             transform: scale(0.95);
@@ -945,7 +964,8 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <!-- Шапка сайта - фиксированная и не перерисовывается -->
+    <div class="container" id="mainContainer">
         <svg class="cloud cloud-left" viewBox="0 0 96 48" aria-hidden="true">
             <path fill="currentColor" d="M16 38h64c8 0 14-6 14-13s-6-13-14-13c-2 0-4 1-6 1C70 5 62 0 52 0 40 0 31 7 28 18c-3-2-7-3-11-3C8 15 1 22 1 31s7 7 15 7z"/>
         </svg>
@@ -953,24 +973,27 @@
             <path fill="currentColor" d="M16 38h64c8 0 14-6 14-13s-6-13-14-13c-2 0-4 1-6 1C70 5 62 0 52 0 40 0 31 7 28 18c-3-2-7-3-11-3C8 15 1 22 1 31s7 7 15 7z"/>
         </svg>
 
-        <h1 class="logo" aria-label="Кідландія">
+        <h1 class="logo" aria-label="Кідландія" id="mainLogo">
             <svg class="star" viewBox="0 0 32 32" aria-hidden="true">
                 <path fill="currentColor" d="m16 1.8 4.2 8.7 9.5 1.4-6.9 6.7 1.7 9.5L16 23.6l-8.5 4.5 1.7-9.5-6.9-6.7 9.5-1.4L16 1.8z"/>
             </svg>
             <span style="color:#7b2fc0">К</span><span style="color:#f06a2f">і</span><span style="color:#6bb72f">д</span><span style="color:#ffc928">л</span><span style="color:#258ad2">а</span><span style="color:#e33b85">н</span><span style="color:#8038bd">д</span><span style="color:#eb3c73">і</span><span style="color:#50bec3">я</span>
         </h1>
 
-        <div id="scheduleWrapper" class="schedule-wrapper">
-            <div id="scheduleContainer">
-                <div class="loading-state">
-                    <div class="spinner"></div>
-                    <div>Завантаження розкладу...</div>
+        <!-- Контейнер для динамического контента -->
+        <div id="dynamicContent">
+            <div id="scheduleWrapper" class="schedule-wrapper">
+                <div id="scheduleContainer">
+                    <div class="loading-state">
+                        <div class="spinner"></div>
+                        <div>Завантаження розкладу...</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Полноэкранные сторис -->
+    <!-- Полноэкранные сторис - вне основного контейнера -->
     <div class="stories-overlay" id="storiesOverlay">
         <div class="stories-bg-green" id="bgGreen">
             <div class="story-circle story-circle-1"></div>
@@ -1014,6 +1037,8 @@
         let settingsData = { logos: {}, maps: {} };
         let isStoriesActive = false;
         let isStoryTransitioning = false;
+        let scheduleDataCache = null;
+        let mapsCache = {};
 
         async function fetchData() {
             try {
@@ -1253,6 +1278,7 @@
             isStoryTransitioning = true;
 
             if (currentStoryIndex < storiesData.length - 1) {
+                // Просто обновляем UI без перезагрузки DOM
                 updateStoryUI(currentStoryIndex + 1);
                 setTimeout(() => {
                     isStoryTransitioning = false;
@@ -1286,17 +1312,14 @@
         }
 
         // ========== РАСПИСАНИЕ ==========
-        function renderSchedule(data, maps) {
-            const container = document.getElementById('scheduleContainer');
-
+        function generateScheduleHTML(data, maps) {
             if (!data || data.length === 0) {
-                container.innerHTML = `
+                return `
                     <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">📋</div>
                         <div style="font-weight:600;color:#666;">Немає даних для відображення</div>
                     </div>
                 `;
-                return;
             }
 
             const kyivTime = getKyivTime();
@@ -1336,7 +1359,6 @@
 
                 html += `<section class="panel ${panelClass}" aria-label="${title}">`;
                 
-                // Время и заголовок в одной строке
                 html += `<div class="time-row">`;
                 html += `<div class="time-left">`;
                 html += `<svg class="clock" viewBox="0 0 48 48" aria-hidden="true">
@@ -1386,6 +1408,13 @@
             }
 
             html += `<div class="update-time">🔄 Оновлено: ${currentTimeStr} (Київ)</div>`;
+            
+            return html;
+        }
+
+        function renderSchedule(data, maps) {
+            const container = document.getElementById('scheduleContainer');
+            const html = generateScheduleHTML(data, maps);
             container.innerHTML = html;
 
             document.querySelectorAll('.station').forEach(el => {
@@ -1436,6 +1465,8 @@
             }
 
             settingsData = data.settings || { logos: {}, maps: {} };
+            mapsCache = settingsData.maps;
+            scheduleDataCache = data.schedule;
 
             renderSchedule(data.schedule, settingsData.maps);
 
@@ -1450,6 +1481,8 @@
                 const newData = await fetchData();
                 if (newData.success) {
                     settingsData = newData.settings || { logos: {}, maps: {} };
+                    mapsCache = settingsData.maps;
+                    scheduleDataCache = newData.schedule;
                     renderSchedule(newData.schedule, settingsData.maps);
                 }
             }, 30000);
