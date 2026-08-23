@@ -389,9 +389,9 @@
             height: 100%;
             padding: 70px 30px 140px;
             color: #1a1a2e;
-            text-align: left; /* Выравниваем весь текст по левому краю */
+            text-align: left;
             flex-direction: column;
-            align-items: flex-start; /* Выравнивание содержимого по левому краю */
+            align-items: flex-start;
             justify-content: center;
             position: relative;
             flex: 1;
@@ -407,7 +407,7 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: flex-start; /* Выравнивание по левому краю */
+            align-items: flex-start;
             justify-content: center;
         }
         
@@ -419,23 +419,25 @@
             object-fit: contain;
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             border: 3px solid rgba(255,255,255,0.5);
-            align-self: center; /* Картинки по центру, так обычно лучше */
+            align-self: center;
         }
         
         .story-slide .story-text {
-            font-size: 26px;
-            line-height: 1.5;
+            font-size: 22px;
+            line-height: 1.6;
             font-weight: 700;
             max-width: 90%;
             word-wrap: break-word;
             background: rgba(255,255,255,0.85);
             backdrop-filter: blur(10px);
-            padding: 16px 30px;
+            padding: 16px 24px;
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.08);
             border: 1px solid rgba(255,255,255,0.5);
-            text-align: left; /* Текст внутри блока тоже по левому краю */
+            text-align: left;
             width: 100%;
+            white-space: pre-wrap; /* Сохраняем переносы строк */
+            word-break: break-word;
         }
         
         .stories-bg-green.active ~ .story-slide .story-text {
@@ -449,7 +451,8 @@
         }
         
         .story-slide .story-text.large {
-            font-size: 32px;
+            font-size: 28px;
+            line-height: 1.5;
         }
         
         .story-slide .story-text .highlight-green {
@@ -475,6 +478,14 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+        .story-slide .story-text .list-item {
+            display: block;
+            margin-top: 6px;
+            padding-left: 8px;
+        }
+        .story-slide .story-text .list-item:first-of-type {
+            margin-top: 4px;
         }
         
         .story-progress {
@@ -787,11 +798,13 @@
                 padding: 60px 20px 120px;
             }
             .story-slide .story-text {
-                font-size: 20px;
-                padding: 14px 20px;
+                font-size: 18px;
+                padding: 14px 18px;
+                line-height: 1.5;
             }
             .story-slide .story-text.large {
-                font-size: 24px;
+                font-size: 22px;
+                line-height: 1.4;
             }
             .story-slide img {
                 max-height: 45vh;
@@ -914,11 +927,12 @@
                 padding: 50px 15px 100px;
             }
             .story-slide .story-text {
-                font-size: 17px;
-                padding: 12px 16px;
+                font-size: 16px;
+                padding: 12px 14px;
+                line-height: 1.4;
             }
             .story-slide .story-text.large {
-                font-size: 20px;
+                font-size: 18px;
             }
             .story-slide img {
                 max-height: 38vh;
@@ -945,11 +959,11 @@
         }
         @media (max-width: 340px) {
             .story-slide .story-text {
-                font-size: 15px;
-                padding: 10px 14px;
+                font-size: 14px;
+                padding: 10px 12px;
             }
             .story-slide .story-text.large {
-                font-size: 17px;
+                font-size: 16px;
             }
             .story-next-btn {
                 padding: 10px 20px;
@@ -1136,6 +1150,56 @@
             };
         }
 
+        // ========== Функция для форматирования текста с сохранением переносов ==========
+        function formatStoryText(text) {
+            if (!text) return '';
+            
+            // Заменяем маркеры списка на перенос строки + маркер
+            // Ищем строки, начинающиеся с • или - или цифры с точкой
+            let lines = text.split('\n');
+            let formattedLines = [];
+            
+            for (let line of lines) {
+                // Если строка начинается с маркера списка, добавляем перенос
+                if (/^[\s]*[•\-*]/.test(line) || /^[\s]*\d+\./.test(line)) {
+                    formattedLines.push(line);
+                } else {
+                    // Если это не маркер, но предыдущая строка была маркером, 
+                    // то это продолжение списка - оставляем как есть
+                    if (formattedLines.length > 0 && /^[\s]*[•\-*]/.test(formattedLines[formattedLines.length - 1]) || 
+                        formattedLines.length > 0 && /^[\s]*\d+\./.test(formattedLines[formattedLines.length - 1])) {
+                        formattedLines.push(line);
+                    } else {
+                        // Обычный текст, разделяем по точкам для лучшей читаемости,
+                        // но не разрываем если это не конец предложения
+                        if (line.length > 60 && !line.includes('\n')) {
+                            // Разбиваем длинные предложения по точке с пробелом
+                            let parts = line.split(/(?<=\.)\s+/);
+                            if (parts.length > 1) {
+                                for (let part of parts) {
+                                    formattedLines.push(part.trim());
+                                }
+                            } else {
+                                formattedLines.push(line);
+                            }
+                        } else {
+                            formattedLines.push(line);
+                        }
+                    }
+                }
+            }
+            
+            // Добавляем отступы для маркеров списка
+            let result = formattedLines.map(line => {
+                if (/^[\s]*[•\-*]/.test(line) || /^[\s]*\d+\./.test(line)) {
+                    return `\n${line}`;
+                }
+                return line;
+            }).join('\n');
+            
+            return result;
+        }
+
         // ========== СТОРИС ==========
         function renderStories(stories) {
             const overlay = document.getElementById('storiesOverlay');
@@ -1174,8 +1238,14 @@
                 
                 if (story.text) {
                     const text = document.createElement('div');
-                    text.className = 'story-text' + (story.text.length < 40 ? ' large' : '');
-                    let formattedText = story.text;
+                    const rawText = story.text;
+                    const isLong = rawText.length > 120;
+                    text.className = 'story-text' + (isLong ? '' : ' large');
+                    
+                    // Форматируем текст с сохранением переносов для списков
+                    let formattedText = formatStoryText(rawText);
+                    
+                    // Применяем выделения
                     const highlights = [
                         { find: /Кідландія/gi, replace: '<span class="highlight-gold">Кідландія</span>' },
                         { find: /Kidslandia/gi, replace: '<span class="highlight-gold">Kidslandia</span>' },
@@ -1185,12 +1255,22 @@
                         { find: /дитини/gi, replace: '<span class="highlight-green">дитини</span>' },
                         { find: /свято/gi, replace: '<span class="highlight-pink">свято</span>' },
                         { find: /розваги/gi, replace: '<span class="highlight-blue">розваги</span>' },
-                        { find: /веселощі/gi, replace: '<span class="highlight-gold">веселощі</span>' }
+                        { find: /веселощі/gi, replace: '<span class="highlight-gold">веселощі</span>' },
+                        { find: /ланди/gi, replace: '<span class="highlight-green">ланди</span>' },
+                        { find: /Ланди/gi, replace: '<span class="highlight-green">Ланди</span>' }
                     ];
                     highlights.forEach(h => {
                         formattedText = formattedText.replace(h.find, h.replace);
                     });
-                    text.innerHTML = formattedText;
+                    
+                    // Преобразуем переносы строк в <br> для HTML, но сохраняем структуру
+                    // Заменяем \n на <br> но сохраняем пустые строки для отступов
+                    let htmlText = formattedText.split('\n').map(line => {
+                        if (line.trim() === '') return '<br>';
+                        return line;
+                    }).join('\n');
+                    
+                    text.innerHTML = htmlText;
                     content.appendChild(text);
                 }
                 
