@@ -96,7 +96,7 @@
             background: linear-gradient(135deg, #e8f5e9, #c8e6c9, #a5d6a7, #81c784);
             z-index: 0;
             opacity: 0;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.4s ease;
         }
         .stories-bg-green.active {
             opacity: 1;
@@ -112,18 +112,10 @@
             background: linear-gradient(135deg, #e3f2fd, #bbdefb, #90caf9, #64b5f6);
             z-index: 0;
             opacity: 0;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.4s ease;
         }
         .stories-bg-blue.active {
             opacity: 1;
-        }
-        
-        /* Декоративные элементы для зеленого фона */
-        .stories-bg-green .deco {
-            background: rgba(46, 135, 29, 0.1);
-        }
-        .stories-bg-blue .deco {
-            background: rgba(18, 121, 191, 0.1);
         }
         
         /* Декоративные круги */
@@ -131,7 +123,7 @@
             position: absolute;
             border-radius: 50%;
             pointer-events: none;
-            transition: all 0.6s ease;
+            transition: all 0.4s ease;
             z-index: 1;
         }
         .story-circle-1 {
@@ -139,14 +131,12 @@
             height: 300px;
             top: -100px;
             right: -80px;
-            animation: pulseCircle 8s ease-in-out infinite;
         }
         .story-circle-2 {
             width: 200px;
             height: 200px;
             bottom: -50px;
             left: -60px;
-            animation: pulseCircle 10s ease-in-out infinite reverse;
         }
         .story-circle-3 {
             width: 150px;
@@ -154,35 +144,28 @@
             top: 40%;
             left: 50%;
             transform: translateX(-50%);
-            animation: pulseCircle 12s ease-in-out infinite alternate;
         }
         
         /* Цвета кругов для зеленого фона */
         .stories-bg-green .story-circle-1 {
-            background: radial-gradient(circle, rgba(46, 135, 29, 0.15), transparent);
+            background: radial-gradient(circle, rgba(46, 135, 29, 0.12), transparent);
         }
         .stories-bg-green .story-circle-2 {
-            background: radial-gradient(circle, rgba(107, 183, 47, 0.12), transparent);
+            background: radial-gradient(circle, rgba(107, 183, 47, 0.10), transparent);
         }
         .stories-bg-green .story-circle-3 {
-            background: radial-gradient(circle, rgba(46, 135, 29, 0.08), transparent);
+            background: radial-gradient(circle, rgba(46, 135, 29, 0.06), transparent);
         }
         
         /* Цвета кругов для синего фона */
         .stories-bg-blue .story-circle-1 {
-            background: radial-gradient(circle, rgba(18, 121, 191, 0.15), transparent);
+            background: radial-gradient(circle, rgba(18, 121, 191, 0.12), transparent);
         }
         .stories-bg-blue .story-circle-2 {
-            background: radial-gradient(circle, rgba(37, 138, 210, 0.12), transparent);
+            background: radial-gradient(circle, rgba(37, 138, 210, 0.10), transparent);
         }
         .stories-bg-blue .story-circle-3 {
-            background: radial-gradient(circle, rgba(18, 121, 191, 0.08), transparent);
-        }
-        
-        @keyframes pulseCircle {
-            0% { transform: scale(1) rotate(0deg); opacity: 0.3; }
-            50% { transform: scale(1.3) rotate(180deg); opacity: 0.6; }
-            100% { transform: scale(1) rotate(360deg); opacity: 0.3; }
+            background: radial-gradient(circle, rgba(18, 121, 191, 0.06), transparent);
         }
         
         .story-slide {
@@ -201,20 +184,6 @@
         }
         .story-slide.active {
             display: flex;
-        }
-        
-        .story-slide.active .story-content {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
         }
         
         .story-content {
@@ -249,13 +218,11 @@
             border: 1px solid rgba(255,255,255,0.5);
         }
         
-        /* Стили для текста на зеленом фоне */
         .stories-bg-green.active ~ .story-slide .story-text {
             color: #1e4a0e;
             background: rgba(255,255,255,0.9);
         }
         
-        /* Стили для текста на синем фоне */
         .stories-bg-blue.active ~ .story-slide .story-text {
             color: #0a2a4a;
             background: rgba(255,255,255,0.9);
@@ -290,7 +257,7 @@
             background-clip: text;
         }
         
-        /* Прогресс-бары сверху */
+        /* Прогресс-бары сверху - без анимации */
         .story-progress {
             position: absolute;
             top: 16px;
@@ -310,22 +277,24 @@
         .story-progress-bar .fill {
             height: 100%;
             width: 0%;
-            transition: width 0.3s ease;
+            transition: none;
             border-radius: 4px;
         }
+        
         /* Цвет прогресса для зеленого фона */
         .stories-bg-green.active ~ .story-progress .fill {
-            background: linear-gradient(90deg, #2e871d, #6bb72f);
+            background: #2e871d;
         }
         .stories-bg-green.active ~ .story-progress .done .fill {
-            background: linear-gradient(90deg, #2e871d, #6bb72f);
+            background: #2e871d;
         }
+        
         /* Цвет прогресса для синего фона */
         .stories-bg-blue.active ~ .story-progress .fill {
-            background: linear-gradient(90deg, #1279bf, #258ad2);
+            background: #1279bf;
         }
         .stories-bg-blue.active ~ .story-progress .done .fill {
-            background: linear-gradient(90deg, #1279bf, #258ad2);
+            background: #1279bf;
         }
         
         .story-progress-bar.done .fill {
@@ -333,7 +302,6 @@
         }
         .story-progress-bar.active .fill {
             width: 100% !important;
-            transition: width 4s linear;
         }
         
         /* Зоны для тапов */
@@ -351,7 +319,7 @@
             right: 0;
         }
         
-        /* Кнопка ДАЛІ */
+        /* Кнопка ДАЛІ - без стрелки */
         .story-next-btn {
             position: absolute;
             bottom: 40px;
@@ -380,14 +348,6 @@
         }
         .story-next-btn:active {
             transform: translateX(-50%) scale(0.95);
-        }
-        .story-next-btn .arrow {
-            display: inline-block;
-            margin-left: 10px;
-            transition: transform 0.3s ease;
-        }
-        .story-next-btn:hover .arrow {
-            transform: translateX(6px);
         }
         
         /* Стили кнопки для зеленого фона */
@@ -437,7 +397,7 @@
             transition: all 0.3s ease;
             border: 1px solid rgba(0,0,0,0.1);
         }
-        /* Цвета точек для зеленого фона */
+        
         .stories-bg-green.active ~ .story-indicators .story-dot {
             background: rgba(46, 135, 29, 0.25);
         }
@@ -450,7 +410,6 @@
             background: rgba(46, 135, 29, 0.6);
         }
         
-        /* Цвета точек для синего фона */
         .stories-bg-blue.active ~ .story-indicators .story-dot {
             background: rgba(18, 121, 191, 0.25);
         }
@@ -477,12 +436,10 @@
             border: 1px solid rgba(255,255,255,0.3);
             letter-spacing: 0.5px;
         }
-        /* Цвет счетчика для зеленого фона */
         .stories-bg-green.active ~ .story-counter {
             color: #1e4a0e;
             background: rgba(255,255,255,0.7);
         }
-        /* Цвет счетчика для синего фона */
         .stories-bg-blue.active ~ .story-counter {
             color: #0a2a4a;
             background: rgba(255,255,255,0.7);
@@ -1029,7 +986,6 @@
         
         <button class="story-next-btn" id="storyNextBtn">
             <span id="btnText">ДАЛІ</span>
-            <span class="arrow">→</span>
         </button>
     </div>
 
@@ -1255,10 +1211,7 @@
                     fill.style.width = '100%';
                 } else if (i === index) {
                     bar.classList.add('active');
-                    fill.style.width = '0%';
-                    setTimeout(() => {
-                        fill.style.width = '100%';
-                    }, 50);
+                    fill.style.width = '100%';
                 } else {
                     fill.style.width = '0%';
                 }
@@ -1279,7 +1232,7 @@
             const btn = document.getElementById('storyNextBtn');
             const btnText = document.getElementById('btnText');
             if (currentStoryIndex === storiesData.length - 1) {
-                btnText.textContent = 'ДО РОЗКЛАДУ';
+                btnText.textContent = 'ПОГОДЖУЮСЬ';
                 btn.classList.add('finish');
             } else {
                 btnText.textContent = 'ДАЛІ';
