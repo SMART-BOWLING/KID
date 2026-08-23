@@ -16,6 +16,7 @@
             font-family: "Arial Rounded MT Bold", "Nunito", "Trebuchet MS", Arial, sans-serif;
             color: #101733;
             padding: 10px 6px;
+            overflow-x: hidden;
         }
         .container {
             max-width: 500px;
@@ -67,12 +68,128 @@
             color: #ffc542;
             filter: drop-shadow(0 2px 1px rgba(0, 0, 0, .12));
         }
+        
+        /* Стили для сторис */
+        .stories-container {
+            position: relative;
+            width: 100%;
+            background: #1a1a2e;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: none;
+            min-height: 400px;
+            touch-action: none;
+        }
+        .stories-container.active {
+            display: block;
+        }
+        .story-slide {
+            display: none;
+            width: 100%;
+            min-height: 400px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            text-align: center;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .story-slide.active {
+            display: flex;
+        }
+        .story-slide img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            object-fit: contain;
+        }
+        .story-slide .story-text {
+            font-size: 18px;
+            line-height: 1.4;
+            font-weight: 600;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+        .story-slide .story-text.large {
+            font-size: 22px;
+        }
+        .story-progress {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            gap: 4px;
+            z-index: 10;
+        }
+        .story-progress-bar {
+            flex: 1;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .story-progress-bar .fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .story-progress-bar.active .fill {
+            animation: progress 4s linear forwards;
+        }
+        @keyframes progress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        .story-tap-area {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            z-index: 5;
+        }
+        .story-tap-left {
+            left: 0;
+        }
+        .story-tap-right {
+            right: 0;
+        }
+        .story-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .story-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            transition: background 0.3s;
+        }
+        .story-dot.active {
+            background: white;
+        }
+        
+        /* Стили для расписания */
         .panel {
             border: 1.5px solid;
             border-radius: 20px;
             padding: 16px 10px 16px;
             background: #ffffff;
             box-shadow: 0 8px 20px rgba(35, 65, 104, .08);
+            display: none;
+        }
+        .panel.visible {
+            display: block;
         }
         .panel+.panel {
             margin-top: 12px;
@@ -134,6 +251,12 @@
             min-height: 100px;
             height: auto;
             padding: 8px 3px 9px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+        .station:active {
+            transform: scale(0.95);
         }
         .station.wide {
             grid-column: 1 / -1;
@@ -144,6 +267,21 @@
             gap: 18px;
             padding: 8px 20px;
             border-color: rgba(174, 210, 235, .7);
+        }
+        .station .map-indicator {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            font-size: 12px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: none;
+            place-items: center;
+        }
+        .station.has-map .map-indicator {
+            display: grid;
         }
         .badge {
             width: 60px;
@@ -184,7 +322,6 @@
             padding: 0 1px;
             width: 100%;
         }
-        /* Убираем перенос через дефис */
         .station-name br {
             display: none;
         }
@@ -240,12 +377,6 @@
                 transform: rotate(360deg);
             }
         }
-        .no-data {
-            text-align: center;
-            padding: 25px 15px;
-            color: #a2a2a2;
-            font-size: 14px;
-        }
         .update-time {
             text-align: center;
             color: #a2a2a2;
@@ -253,18 +384,58 @@
             margin-top: 12px;
             opacity: 0.7;
         }
-        .debug-info {
-            background: #f8f9fa;
-            padding: 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            color: #666;
-            margin-top: 8px;
-            border: 1px solid #e0e0e0;
-            font-family: monospace;
-            white-space: pre-wrap;
-            word-break: break-all;
+        
+        /* Модальное окно для карты */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: auto;
+            padding: 20px;
+            position: relative;
+        }
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.1);
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            color: #333;
+        }
+        .modal-close:hover {
+            background: rgba(0,0,0,0.2);
+        }
+        
         @media (max-width: 480px) {
             body {
                 padding: 8px 4px;
@@ -336,6 +507,19 @@
             .station-time {
                 font-size: 11px;
                 margin-top: 4px;
+            }
+            .story-slide {
+                min-height: 350px;
+                padding: 25px 15px;
+            }
+            .story-slide .story-text {
+                font-size: 16px;
+            }
+            .story-slide .story-text.large {
+                font-size: 19px;
+            }
+            .story-slide img {
+                max-height: 250px;
             }
         }
         @media (max-width: 380px) {
@@ -409,77 +593,18 @@
                 font-size: 10px;
                 margin-top: 3px;
             }
-        }
-        @media (max-width: 340px) {
-            body {
-                padding: 4px 2px;
+            .story-slide {
+                min-height: 300px;
+                padding: 20px 12px;
             }
-            .container {
-                padding: 8px 3px 16px;
+            .story-slide .story-text {
+                font-size: 14px;
             }
-            .logo {
-                font-size: 24px;
-                margin: 4px auto 10px;
+            .story-slide .story-text.large {
+                font-size: 17px;
             }
-            .star {
-                left: 28px;
-                top: -14px;
-                width: 14px;
-                height: 14px;
-            }
-            .time-row {
-                font-size: 18px;
-                gap: 5px;
-                margin: 0 0 6px;
-            }
-            .clock {
-                width: 20px;
-                height: 20px;
-            }
-            .panel {
-                padding: 8px 3px 8px;
-                border-radius: 12px;
-            }
-            .panel.next {
-                padding: 8px 3px 8px;
-            }
-            .section-title {
-                font-size: 11px;
-                margin: 0 0 5px;
-            }
-            .station {
-                min-height: 60px;
-                padding: 4px 1px 5px;
-                border-radius: 8px;
-            }
-            .station-name {
-                font-size: 7px;
-            }
-            .wide .station-name {
-                font-size: 11px;
-            }
-            .badge {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
-                margin-bottom: 3px;
-            }
-            .wide .badge {
-                width: 34px;
-                height: 34px;
-                font-size: 20px;
-            }
-            .station.wide {
-                padding: 4px 8px;
-                gap: 8px;
-                min-height: 45px;
-            }
-            .grid-stations {
-                gap: 2px;
-            }
-            .station-time {
-                font-size: 9px;
-                margin-top: 2px;
+            .story-slide img {
+                max-height: 200px;
             }
         }
     </style>
@@ -500,6 +625,16 @@
             <span style="color:#7b2fc0">К</span><span style="color:#f06a2f">і</span><span style="color:#6bb72f">д</span><span style="color:#ffc928">л</span><span style="color:#258ad2">а</span><span style="color:#e33b85">н</span><span style="color:#8038bd">д</span><span style="color:#eb3c73">і</span><span style="color:#50bec3">я</span>
         </h1>
 
+        <!-- Контейнер для сторис -->
+        <div id="storiesContainer" class="stories-container">
+            <div class="story-progress" id="storyProgress"></div>
+            <div id="storySlides"></div>
+            <div class="story-tap-area story-tap-left" id="storyTapLeft"></div>
+            <div class="story-tap-area story-tap-right" id="storyTapRight"></div>
+            <div class="story-indicators" id="storyIndicators"></div>
+        </div>
+
+        <!-- Контейнер для расписания -->
         <div id="scheduleContainer">
             <div class="loading-state">
                 <div class="spinner"></div>
@@ -508,10 +643,24 @@
         </div>
     </div>
 
+    <!-- Модальное окно для карты -->
+    <div class="modal-overlay" id="mapModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <img id="mapImage" src="" alt="Карта станції">
+        </div>
+    </div>
+
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeEhyXLvNNsXUCTiKTo4GSuuTj4NEmAXopQ0ztwk3HjqLB9BXTqYNuGVlEdNw6LJo-sA/exec';
 
-        async function fetchSchedule() {
+        let storiesData = [];
+        let currentStoryIndex = 0;
+        let storyTimer = null;
+        let isStoriesActive = false;
+        let settingsData = { logos: {}, maps: {} };
+
+        async function fetchData() {
             try {
                 const response = await fetch(SCRIPT_URL);
                 if (!response.ok) throw new Error(`Помилка: ${response.status}`);
@@ -602,25 +751,138 @@
             };
         }
 
-        function renderSchedule(data) {
-            const container = document.getElementById('scheduleContainer');
+        // ========== СТОРИС ==========
+        function renderStories(stories) {
+            const container = document.getElementById('storiesContainer');
+            const slidesContainer = document.getElementById('storySlides');
+            const progressContainer = document.getElementById('storyProgress');
+            const indicatorsContainer = document.getElementById('storyIndicators');
 
-            if (!data.success) {
-                container.innerHTML = `
-                    <div class="panel" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
-                        <div style="font-size:20px;margin-bottom:10px;">❌</div>
-                        <div style="font-weight:600;color:#c62828;">Помилка: ${data.error || 'Невідома помилка'}</div>
-                    </div>
-                `;
+            if (!stories || stories.length === 0) {
+                container.classList.remove('active');
                 return;
             }
 
-            if (!data.rows || data.rows.length === 0) {
+            storiesData = stories;
+            container.classList.add('active');
+
+            // Создаем слайды
+            slidesContainer.innerHTML = '';
+            stories.forEach((story, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'story-slide' + (index === 0 ? ' active' : '');
+                slide.dataset.index = index;
+                
+                if (story.image) {
+                    const img = document.createElement('img');
+                    img.src = story.image;
+                    img.alt = 'Сторис';
+                    img.loading = 'lazy';
+                    slide.appendChild(img);
+                }
+                
+                if (story.text) {
+                    const text = document.createElement('div');
+                    text.className = 'story-text' + (story.text.length < 30 ? ' large' : '');
+                    text.textContent = story.text;
+                    slide.appendChild(text);
+                }
+                
+                slidesContainer.appendChild(slide);
+            });
+
+            // Создаем прогресс-бары
+            progressContainer.innerHTML = '';
+            stories.forEach((_, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'story-progress-bar' + (index === 0 ? ' active' : '');
+                bar.innerHTML = '<div class="fill"></div>';
+                progressContainer.appendChild(bar);
+            });
+
+            // Создаем индикаторы
+            indicatorsContainer.innerHTML = '';
+            stories.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = 'story-dot' + (index === 0 ? ' active' : '');
+                indicatorsContainer.appendChild(dot);
+            });
+
+            currentStoryIndex = 0;
+            showStory(0);
+        }
+
+        function showStory(index) {
+            const slides = document.querySelectorAll('.story-slide');
+            const bars = document.querySelectorAll('.story-progress-bar');
+            const dots = document.querySelectorAll('.story-dot');
+
+            slides.forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+
+            bars.forEach((bar, i) => {
+                bar.classList.toggle('active', i === index);
+                if (i !== index) {
+                    const fill = bar.querySelector('.fill');
+                    fill.style.width = '0%';
+                }
+            });
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            currentStoryIndex = index;
+            
+            // Запускаем таймер для текущего сторис
+            clearTimeout(storyTimer);
+            if (index < storiesData.length - 1) {
+                storyTimer = setTimeout(() => {
+                    showStory(index + 1);
+                }, 4000);
+            } else {
+                // Последний сторис - закрываем и показываем расписание
+                storyTimer = setTimeout(() => {
+                    closeStories();
+                }, 4000);
+            }
+        }
+
+        function closeStories() {
+            const container = document.getElementById('storiesContainer');
+            container.classList.remove('active');
+            isStoriesActive = false;
+            clearTimeout(storyTimer);
+            
+            // Показываем расписание
+            document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
+            document.getElementById('scheduleContainer').querySelector('.loading-state')?.remove();
+        }
+
+        function nextStory() {
+            if (currentStoryIndex < storiesData.length - 1) {
+                showStory(currentStoryIndex + 1);
+            } else {
+                closeStories();
+            }
+        }
+
+        function prevStory() {
+            if (currentStoryIndex > 0) {
+                showStory(currentStoryIndex - 1);
+            }
+        }
+
+        // ========== РАСПИСАНИЕ ==========
+        function renderSchedule(data, maps) {
+            const container = document.getElementById('scheduleContainer');
+
+            if (!data || data.length === 0) {
                 container.innerHTML = `
                     <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">📋</div>
                         <div style="font-weight:600;color:#666;">Немає даних для відображення</div>
-                        <div class="debug-info">${JSON.stringify(data, null, 2)}</div>
                     </div>
                 `;
                 return;
@@ -635,7 +897,7 @@
 
             // Группируем строки по времени
             const timeGroups = {};
-            data.rows.forEach(row => {
+            data.forEach(row => {
                 const key = `${row.timeFrom}–${row.timeTo}`;
                 if (!timeGroups[key]) timeGroups[key] = [];
                 timeGroups[key].push(row);
@@ -654,18 +916,16 @@
                 const timeTo = key.split('–')[1];
                 const status = getStationStatus(timeFrom, timeTo, kyivTime);
 
-                // Показываем только активные и будущие интервалы
                 if (status === 'past') return;
 
                 const isActive = status === 'active';
                 const panelClass = isActive ? 'active' : 'next';
                 const title = isActive ? 'Працюють зараз' : 'Наступні';
 
-                // Разделяем ДР и обычные станции
                 const stationItems = rows.filter(r => r.station !== 'ДР');
                 const eventRow = rows.find(r => r.station === 'ДР');
 
-                html += `<section class="panel ${panelClass}" aria-label="${title}">`;
+                html += `<section class="panel ${panelClass} visible" aria-label="${title}">`;
                 html += `<div class="time-row">`;
                 html += `<svg class="clock" viewBox="0 0 48 48" aria-hidden="true">
                             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="4"/>
@@ -675,14 +935,14 @@
                 html += `</div>`;
                 html += `<p class="section-title">${title}</p>`;
 
-                // Все станции в 4 колонки с одинаковым размером
                 html += `<div class="grid-stations">`;
                 stationItems.forEach(st => {
                     const style = getStationStyle(st.station);
                     const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
-                    html += `<article class="station">`;
+                    const hasMap = maps[st.station] ? 'has-map' : '';
+                    html += `<article class="station ${hasMap}" data-station="${st.station}">`;
+                    html += `<div class="map-indicator">🗺️</div>`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
-                    // Заменяем дефис на пробел для правильного переноса по словам
                     const displayName = st.station.replace(/-/g, ' ');
                     html += `<div class="station-name">${displayName}</div>`;
                     html += `</article>`;
@@ -692,8 +952,10 @@
                 if (eventRow) {
                     const style = getStationStyle(eventRow.station);
                     const logoHtml = eventRow.logo ? `<img src="${eventRow.logo}" alt="${eventRow.station}">` : style.emoji;
+                    const hasMap = maps[eventRow.station] ? 'has-map' : '';
                     html += `<div class="grid-stations">`;
-                    html += `<article class="station wide">`;
+                    html += `<article class="station wide ${hasMap}" data-station="${eventRow.station}">`;
+                    html += `<div class="map-indicator">🗺️</div>`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     const displayName = eventRow.station.replace(/-/g, ' ');
                     html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
@@ -706,7 +968,7 @@
 
             if (!html) {
                 html = `
-                    <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
+                    <div class="panel visible" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
                         <div style="font-size:20px;margin-bottom:10px;">⏰</div>
                         <div style="font-weight:600;color:#666;">Немає активних або майбутніх станцій</div>
                         <div style="font-size:12px;color:#999;margin-top:8px;">Поточний час: ${currentTimeStr}</div>
@@ -716,8 +978,34 @@
 
             html += `<div class="update-time">🔄 Оновлено: ${currentTimeStr} (Київ)</div>`;
             container.innerHTML = html;
+
+            // Добавляем обработчики кликов на станции
+            document.querySelectorAll('.station').forEach(el => {
+                el.addEventListener('click', function() {
+                    const stationName = this.dataset.station;
+                    const mapUrl = maps[stationName];
+                    if (mapUrl) {
+                        openMap(mapUrl);
+                    }
+                });
+            });
         }
 
+        // ========== МОДАЛЬНОЕ ОКНО ДЛЯ КАРТЫ ==========
+        function openMap(url) {
+            const modal = document.getElementById('mapModal');
+            const img = document.getElementById('mapImage');
+            img.src = url;
+            modal.classList.add('active');
+        }
+
+        function closeMap() {
+            const modal = document.getElementById('mapModal');
+            modal.classList.remove('active');
+            document.getElementById('mapImage').src = '';
+        }
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
         async function init() {
             const container = document.getElementById('scheduleContainer');
             container.innerHTML = `
@@ -727,15 +1015,75 @@
                 </div>
             `;
 
-            const data = await fetchSchedule();
-            renderSchedule(data);
+            const data = await fetchData();
+            
+            if (!data.success) {
+                container.innerHTML = `
+                    <div class="panel visible" style="border-color:#ffcdd2;background:#fff5f5;padding:30px;text-align:center;">
+                        <div style="font-size:20px;margin-bottom:10px;">❌</div>
+                        <div style="font-weight:600;color:#c62828;">Помилка: ${data.error || 'Невідома помилка'}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Сохраняем настройки
+            settingsData = data.settings || { logos: {}, maps: {} };
+
+            // Сначала показываем сторис
+            if (data.stories && data.stories.length > 0) {
+                renderStories(data.stories);
+                isStoriesActive = true;
+                
+                // Прячем расписание пока не закончатся сторис
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('visible'));
+            }
+
+            // Рендерим расписание (оно будет скрыто до окончания сторис)
+            renderSchedule(data.schedule, settingsData.maps);
+
+            // Если нет сторис, показываем расписание сразу
+            if (!data.stories || data.stories.length === 0) {
+                document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
+            }
 
             // Обновляем каждые 30 секунд
             setInterval(async () => {
-                const data = await fetchSchedule();
-                renderSchedule(data);
+                const newData = await fetchData();
+                if (newData.success) {
+                    settingsData = newData.settings || { logos: {}, maps: {} };
+                    renderSchedule(newData.schedule, settingsData.maps);
+                }
             }, 30000);
         }
+
+        // Обработчики для сторис
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('storyTapLeft').addEventListener('click', prevStory);
+            document.getElementById('storyTapRight').addEventListener('click', nextStory);
+            
+            // Свайпы для сторис
+            let touchStartX = 0;
+            document.getElementById('storiesContainer').addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            document.getElementById('storiesContainer').addEventListener('touchend', function(e) {
+                const diff = touchStartX - e.changedTouches[0].screenX;
+                if (Math.abs(diff) > 30) {
+                    if (diff > 0) nextStory();
+                    else prevStory();
+                }
+            });
+
+            // Обработчики для модального окна
+            document.getElementById('modalClose').addEventListener('click', closeMap);
+            document.getElementById('mapModal').addEventListener('click', function(e) {
+                if (e.target === this) closeMap();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeMap();
+            });
+        });
 
         init();
     </script>
