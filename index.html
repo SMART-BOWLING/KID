@@ -389,9 +389,9 @@
             height: 100%;
             padding: 70px 30px 140px;
             color: #1a1a2e;
-            text-align: center;
+            text-align: left; /* Выравниваем весь текст по левому краю */
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start; /* Выравнивание содержимого по левому краю */
             justify-content: center;
             position: relative;
             flex: 1;
@@ -407,7 +407,7 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start; /* Выравнивание по левому краю */
             justify-content: center;
         }
         
@@ -419,6 +419,7 @@
             object-fit: contain;
             box-shadow: 0 20px 60px rgba(0,0,0,0.15);
             border: 3px solid rgba(255,255,255,0.5);
+            align-self: center; /* Картинки по центру, так обычно лучше */
         }
         
         .story-slide .story-text {
@@ -433,6 +434,8 @@
             border-radius: 16px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.08);
             border: 1px solid rgba(255,255,255,0.5);
+            text-align: left; /* Текст внутри блока тоже по левому краю */
+            width: 100%;
         }
         
         .stories-bg-green.active ~ .story-slide .story-text {
