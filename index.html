@@ -30,47 +30,19 @@
             position: relative;
             z-index: 1;
         }
-        .cloud {
-            position: absolute;
-            opacity: .72;
-            pointer-events: none;
-        }
-        .cloud-left {
-            left: -10px;
-            top: 140px;
-            width: 76px;
-            height: 39px;
-            color: #fbf3cd;
-        }
-        .cloud-right {
-            right: -6px;
-            top: 130px;
-            width: 82px;
-            height: 42px;
-            color: #e3f1fe;
-        }
-        .logo {
+        .logo-banner {
             position: relative;
-            width: max-content;
+            display: block;
+            width: 100%;
+            max-width: 420px;
             margin: 10px auto 20px;
-            font-size: 38px;
-            font-weight: 1000;
-            letter-spacing: 1px;
-            line-height: .9;
-            text-transform: uppercase;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            will-change: transform;
-            backface-visibility: hidden;
-            transform: translateZ(0);
+            text-align: center;
         }
-        .logo span {
-            display: inline-block;
-            text-shadow: 0 2px 1px rgba(0, 0, 0, .06);
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            backface-visibility: hidden;
-            transform: translateZ(0);
+        .logo-banner img {
+            width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
         
         .schedule-wrapper {
@@ -444,31 +416,6 @@
             line-height: 1.5;
         }
         
-        .story-slide .story-text .highlight-green {
-            background: linear-gradient(135deg, #2e871d, #6bb72f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .story-slide .story-text .highlight-blue {
-            background: linear-gradient(135deg, #1279bf, #258ad2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .story-slide .story-text .highlight-gold {
-            background: linear-gradient(135deg, #ffc542, #f06a2f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .story-slide .story-text .highlight-pink {
-            background: linear-gradient(135deg, #e33b85, #8038bd);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
         .story-progress {
             position: absolute;
             top: 16px;
@@ -700,8 +647,8 @@
                 padding: 12px 6px 24px;
                 border-radius: 24px;
             }
-            .logo {
-                font-size: 32px;
+            .logo-banner {
+                max-width: 320px;
                 margin: 8px auto 16px;
             }
             .time-left {
@@ -823,8 +770,8 @@
             .container {
                 padding: 10px 4px 20px;
             }
-            .logo {
-                font-size: 28px;
+            .logo-banner {
+                max-width: 260px;
                 margin: 6px auto 14px;
             }
             .time-left {
@@ -947,15 +894,9 @@
 <body>
     <!-- ШАПКА САЙТА - НИКОГДА НЕ ПЕРЕРИСОВЫВАЕТСЯ -->
     <div class="container" id="mainContainer">
-        <svg class="cloud cloud-left" viewBox="0 0 96 48" aria-hidden="true">
-            <path fill="currentColor" d="M16 38h64c8 0 14-6 14-13s-6-13-14-13c-2 0-4 1-6 1C70 5 62 0 52 0 40 0 31 7 28 18c-3-2-7-3-11-3C8 15 1 22 1 31s7 7 15 7z"/>
-        </svg>
-        <svg class="cloud cloud-right" viewBox="0 0 96 48" aria-hidden="true">
-            <path fill="currentColor" d="M16 38h64c8 0 14-6 14-13s-6-13-14-13c-2 0-4 1-6 1C70 5 62 0 52 0 40 0 31 7 28 18c-3-2-7-3-11-3C8 15 1 22 1 31s7 7 15 7z"/>
-        </svg>
-
-        <div class="logo" id="mainLogo" aria-label="Кідландія">
-            <span style="color:#7b2fc0">К</span><span style="color:#f06a2f">і</span><span style="color:#6bb72f">д</span><span style="color:#ffc928">л</span><span style="color:#258ad2">а</span><span style="color:#e33b85">н</span><span style="color:#8038bd">д</span><span style="color:#eb3c73">і</span><span style="color:#50bec3">я</span>
+        <!-- Баннер вместо текстовой надписи -->
+        <div class="logo-banner" id="mainLogo" aria-label="Кідландія">
+            <img src="https://res.cloudinary.com/dplmdnxvk/image/upload/v1789120837/qhivsoa5izkgpbq4acuf.png" alt="Кідландія">
         </div>
 
         <!-- Контейнер для расписания -->
@@ -1108,24 +1049,18 @@
         function formatStoryText(text) {
             if (!text) return '';
             
-            // Просто заменяем маркеры списка на перенос строки + маркер
-            // Ищем •, -, * или цифру с точкой в начале строки
             let lines = text.split('\n');
             let result = [];
             
             for (let line of lines) {
-                // Проверяем, начинается ли строка с маркера списка (после возможных пробелов)
                 let trimmed = line.trim();
                 if (/^[•\-*]/.test(trimmed) || /^\d+\./.test(trimmed)) {
-                    // Если это маркер списка, добавляем перенос строки перед ним
                     result.push(line);
                 } else {
-                    // Обычный текст — оставляем как есть
                     result.push(line);
                 }
             }
             
-            // Объединяем с переносами строк
             return result.join('\n');
         }
 
@@ -1171,28 +1106,9 @@
                     const isLong = rawText.length > 120;
                     text.className = 'story-text' + (isLong ? '' : ' large');
                     
-                    // Форматируем текст: просто переносим строку если есть маркер
                     let formattedText = formatStoryText(rawText);
                     
-                    // Применяем выделения
-                    const highlights = [
-                        { find: /Кідландія/gi, replace: '<span class="highlight-gold">Кідландія</span>' },
-                        { find: /Kidslandia/gi, replace: '<span class="highlight-gold">Kidslandia</span>' },
-                        { find: /діти/gi, replace: '<span class="highlight-green">діти</span>' },
-                        { find: /дітей/gi, replace: '<span class="highlight-green">дітей</span>' },
-                        { find: /дитина/gi, replace: '<span class="highlight-green">дитина</span>' },
-                        { find: /дитини/gi, replace: '<span class="highlight-green">дитини</span>' },
-                        { find: /свято/gi, replace: '<span class="highlight-pink">свято</span>' },
-                        { find: /розваги/gi, replace: '<span class="highlight-blue">розваги</span>' },
-                        { find: /веселощі/gi, replace: '<span class="highlight-gold">веселощі</span>' },
-                        { find: /ланди/gi, replace: '<span class="highlight-green">ланди</span>' },
-                        { find: /Ланди/gi, replace: '<span class="highlight-green">Ланди</span>' }
-                    ];
-                    highlights.forEach(h => {
-                        formattedText = formattedText.replace(h.find, h.replace);
-                    });
-                    
-                    // Преобразуем переносы строк в <br> для HTML
+                    // Подсветка отключена - просто переносы строк
                     let htmlText = formattedText.split('\n').map(line => {
                         if (line.trim() === '') return '<br>';
                         return line;
@@ -1460,7 +1376,6 @@
             const data = await fetchData();
             
             if (!data.success) {
-                // Проверяем, есть ли специальный флаг noSchedule
                 if (data.noSchedule) {
                     container.innerHTML = `
                         <div class="panel" style="border-color:#f5e6b8;background:#fffbf0;padding:30px;text-align:center;">
@@ -1509,7 +1424,6 @@
                     scheduleDataCache = newData.schedule;
                     renderSchedule(newData.schedule, settingsData.maps);
                 } else if (newData.noSchedule) {
-                    // Если расписания нет - показываем сообщение
                     const container = document.getElementById('scheduleContainer');
                     container.innerHTML = `
                         <div class="panel" style="border-color:#f5e6b8;background:#fffbf0;padding:30px;text-align:center;">
@@ -1525,8 +1439,6 @@
 
         // Обработчики событий
         document.addEventListener('DOMContentLoaded', function() {
-            // Убираем обработчики кликов по областям экрана
-            // Оставляем только кнопку ДАЛІ
             document.getElementById('storyNextBtn').addEventListener('click', nextStory);
             
             document.addEventListener('keydown', function(e) {
@@ -1536,16 +1448,12 @@
                         nextStory();
                     } else if (e.key === 'ArrowLeft') {
                         e.preventDefault();
-                        // Отключаем переключение назад
                     }
                 }
                 if (e.key === 'Escape') {
                     closeMap();
                 }
             });
-
-            // Убираем обработчики свайпов
-            // Оставляем только кнопку
 
             document.getElementById('modalClose').addEventListener('click', closeMap);
             document.getElementById('mapModal').addEventListener('click', function(e) {
