@@ -975,7 +975,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeEhyXLvNNsXUCTiKTo4GSuuTj4NEmAXopQ0ztwk3HjqLB9BXTqYNuGVlEdNw6LJo-sA/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw0nBCzOba_BWbPYxdsuGvPFNwgmGwk5CTJCoED1Zega3aZX2u8IRjJp_-QdhWaEcUL/exec';
 
         let storiesData = [];
         let currentStoryIndex = 0;
@@ -1447,28 +1447,7 @@
                 document.querySelectorAll('.panel').forEach(p => p.classList.add('visible'));
             }
 
-            setInterval(async () => {
-                const newData = await fetchData();
-                if (newData.success) {
-                    settingsData = newData.settings || { logos: {}, maps: {} };
-                    mapsCache = settingsData.maps;
-                    scheduleDataCache = newData.schedule;
-                    renderSchedule(newData.schedule, settingsData.maps);
-                } else if (newData.noSchedule) {
-                    const container = document.getElementById('scheduleContainer');
-                    container.innerHTML = `
-                        <div class="panel" style="border-color:#f5e6b8;background:#fffbf0;padding:30px;text-align:center;">
-                            <div style="font-size:48px;margin-bottom:15px;">😱</div>
-                            <div style="font-size:20px;font-weight:700;color:#8d6e20;margin-bottom:10px;">Потрібна допомога!</div>
-                            <div style="font-size:14px;color:#a07c3a;max-width:320px;margin:0 auto;">
-                                Графік станцій ще не опубліковано.<br>
-                                Повідомте адміністратора, щоб маленькі професіонали знали, куди вирушати!
-                            </div>
-                        </div>
-                    `;
-                    document.getElementById('scheduleWrapper').classList.add('visible');
-                }
-            }, 30000);
+
         }
 
         // Обработчики событий
