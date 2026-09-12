@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Кідландія - Розклад</title>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1785084364/uoozegmcoycvqkbxdtok.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dplmdnxvk/image/upload/v1785084364/uoozegmcoycvqkbxdtok.png">
     <style>
         * {
             box-sizing: border-box;
@@ -632,8 +634,6 @@
             border-radius: 50%;
             background: #e53935;
             border: none;
-            font-size: 24px;
-            font-weight: 700;
             cursor: pointer;
             display: grid;
             place-items: center;
@@ -642,6 +642,7 @@
             z-index: 10001;
             box-shadow: 0 4px 16px rgba(229, 57, 53, 0.5);
             -webkit-tap-highlight-color: transparent;
+            padding: 0;
         }
         .modal-close:hover {
             background: #c62828;
@@ -649,6 +650,12 @@
         }
         .modal-close:active {
             transform: scale(0.95);
+        }
+        .modal-close svg {
+            width: 24px;
+            height: 24px;
+            display: block;
+            pointer-events: none;
         }
         
         @media (max-width: 480px) {
@@ -777,9 +784,12 @@
             .modal-close {
                 width: 42px;
                 height: 42px;
-                font-size: 20px;
                 top: 12px;
                 right: 12px;
+            }
+            .modal-close svg {
+                width: 20px;
+                height: 20px;
             }
         }
         @media (max-width: 380px) {
@@ -954,7 +964,12 @@
     <!-- Модальное окно для карты -->
     <div class="modal-overlay" id="mapModal">
         <div class="modal-content">
-            <button class="modal-close" id="modalClose">✕</button>
+            <button class="modal-close" id="modalClose" aria-label="Закрити">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
             <img id="mapImage" src="" alt="Карта станції">
         </div>
     </div>
