@@ -1268,9 +1268,8 @@
             if (!data || data.length === 0) {
                 return `
                     <div class="panel" style="border-color:#e0e0e0;background:#fafafa;padding:30px;text-align:center;">
-                        <div style="font-size:20px;margin-bottom:10px;">😴</div>
-                        <div style="font-weight:600;color:#666;">Місто професій уже засинає…
-Чекаємо на тебе завтра!</div>
+                        <div style="font-size:20px;margin-bottom:10px;">📋</div>
+                        <div style="font-weight:600;color:#666;">Немає даних для відображення</div>
                     </div>
                 `;
             }
@@ -1411,11 +1410,11 @@
                 if (data.noSchedule) {
                     container.innerHTML = `
                         <div class="panel" style="border-color:#f5e6b8;background:#fffbf0;padding:30px;text-align:center;">
-                            <div style="font-size:48px;margin-bottom:15px;">📅</div>
-                            <div style="font-size:20px;font-weight:700;color:#8d6e20;margin-bottom:10px;">Сьогодні немає розкладу</div>
-                            <div style="font-size:14px;color:#a07c3a;max-width:300px;margin:0 auto;">
-                                Розклад доступний тільки в дні проведення занять. 
-                                Завітайте до нас в інший день!
+                            <div style="font-size:48px;margin-bottom:15px;">😱</div>
+                            <div style="font-size:20px;font-weight:700;color:#8d6e20;margin-bottom:10px;">Потрібна допомога!</div>
+                            <div style="font-size:14px;color:#a07c3a;max-width:320px;margin:0 auto;">
+                                Графік станцій ще не опубліковано.<br>
+                                Повідомте адміністратора, щоб маленькі професіонали знали, куди вирушати!
                             </div>
                             <div style="margin-top:20px;font-size:13px;color:#b89550;">
                                 🕐 Поточний час: ${new Date().toLocaleString('uk-UA', {timeZone: 'Europe/Kiev', hour: '2-digit', minute: '2-digit'})}
@@ -1459,9 +1458,12 @@
                     const container = document.getElementById('scheduleContainer');
                     container.innerHTML = `
                         <div class="panel" style="border-color:#f5e6b8;background:#fffbf0;padding:30px;text-align:center;">
-                            <div style="font-size:48px;margin-bottom:15px;">📅</div>
-                            <div style="font-size:20px;font-weight:700;color:#8d6e20;margin-bottom:10px;">Сьогодні немає розкладу</div>
-                            <div style="font-size:14px;color:#a07c3a;">Завітайте до нас в інший день!</div>
+                            <div style="font-size:48px;margin-bottom:15px;">😱</div>
+                            <div style="font-size:20px;font-weight:700;color:#8d6e20;margin-bottom:10px;">Потрібна допомога!</div>
+                            <div style="font-size:14px;color:#a07c3a;max-width:320px;margin:0 auto;">
+                                Графік станцій ще не опубліковано.<br>
+                                Повідомте адміністратора, щоб маленькі професіонали знали, куди вирушати!
+                            </div>
                         </div>
                     `;
                     document.getElementById('scheduleWrapper').classList.add('visible');
