@@ -120,8 +120,10 @@
             grid-column: 1 / -1;
         }
         .station {
-            display: grid;
-            place-items: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             min-width: 0;
             background: #ffffff;
             border: 1.5px solid rgba(183, 205, 141, .48);
@@ -129,10 +131,11 @@
             box-shadow: 0 4px 12px rgba(35, 65, 104, .05);
             min-height: 100px;
             height: auto;
-            padding: 8px 3px 9px;
+            padding: 8px 3px 0;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
             position: relative;
+            overflow: hidden;
             -webkit-tap-highlight-color: transparent;
         }
         .station:active {
@@ -143,9 +146,11 @@
             min-height: 70px;
             height: auto;
             display: flex;
+            flex-direction: row;
+            align-items: center;
             justify-content: flex-start;
             gap: 18px;
-            padding: 8px 20px;
+            padding: 8px 20px 0;
             border-color: rgba(174, 210, 235, .7);
         }
         .badge {
@@ -162,7 +167,7 @@
         .wide .badge {
             width: 56px;
             height: 56px;
-            margin: 0;
+            margin: 0 0 6px;
             flex: 0 0 auto;
             font-size: 34px;
         }
@@ -208,17 +213,35 @@
             font-size: 12px;
             font-weight: 1000;
         }
-        /* Мелкий текст для дня рождения */
-        .station-note {
-            display: block;
+        
+        /* ===== ЖЁЛТАЯ ПОЛОСКА "ДЕНЬ НАРОДЖЕННЯ" ===== */
+        .station-birthday {
+            margin-top: auto;
+            width: calc(100% - 8px);
+            margin-left: 4px;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            background: linear-gradient(135deg, #fff0a8, #ffd93b);
+            color: #6f5200;
             font-size: 8px;
-            font-weight: 700;
-            color: #e91e63;
-            text-transform: none;
-            margin-top: 2px;
+            font-weight: 1000;
+            text-transform: uppercase;
+            letter-spacing: 0.45px;
+            text-align: center;
+            padding: 4px 3px;
             line-height: 1.1;
-            letter-spacing: 0.2px;
+            border: 1px solid rgba(210, 168, 0, 0.35);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(180, 135, 0, 0.12), inset 0 1px 0 rgba(255,255,255,0.7);
         }
+        .wide .station-birthday {
+            font-size: 10px;
+            letter-spacing: 0.8px;
+            padding: 4px 8px;
+            border-radius: 0 0 18px 18px;
+            text-align: left;
+        }
+        
         .badge-default {
             background: #f0f0f0;
         }
@@ -705,7 +728,7 @@
             }
             .station {
                 min-height: 85px;
-                padding: 6px 2px 7px;
+                padding: 6px 2px 0;
                 border-radius: 12px;
             }
             .station-name {
@@ -714,8 +737,15 @@
             .wide .station-name {
                 font-size: 14px;
             }
-            .station-note {
+            .station-birthday {
                 font-size: 7px;
+                padding: 2px 2px;
+                border-radius: 0 0 10px 10px;
+            }
+            .wide .station-birthday {
+                font-size: 9px;
+                padding: 3px 6px;
+                border-radius: 0 0 14px 14px;
             }
             .badge {
                 width: 50px;
@@ -729,7 +759,7 @@
                 font-size: 28px;
             }
             .station.wide {
-                padding: 6px 14px;
+                padding: 6px 14px 0;
                 gap: 14px;
                 min-height: 60px;
             }
@@ -841,7 +871,7 @@
             }
             .station {
                 min-height: 70px;
-                padding: 5px 2px 6px;
+                padding: 5px 2px 0;
                 border-radius: 10px;
             }
             .station-name {
@@ -850,8 +880,16 @@
             .wide .station-name {
                 font-size: 12px;
             }
-            .station-note {
+            .station-birthday {
                 font-size: 6px;
+                letter-spacing: 0.4px;
+                padding: 2px 1px;
+                border-radius: 0 0 8px 8px;
+            }
+            .wide .station-birthday {
+                font-size: 8px;
+                padding: 3px 5px;
+                border-radius: 0 0 12px 12px;
             }
             .badge {
                 width: 42px;
@@ -865,7 +903,7 @@
                 font-size: 24px;
             }
             .station.wide {
-                padding: 5px 10px;
+                padding: 5px 10px 0;
                 gap: 10px;
                 min-height: 50px;
             }
@@ -1159,7 +1197,6 @@
                     
                     let formattedText = formatStoryText(rawText);
                     
-                    // Подсветка отключена - просто переносы строк
                     let htmlText = formattedText.split('\n').map(line => {
                         if (line.trim() === '') return '<br>';
                         return line;
@@ -1345,15 +1382,14 @@
                 html += `<div class="grid-stations">`;
                 stationItems.forEach(st => {
                     const style = getStationStyle(st.station);
-                    // Бейдж НЕ меняем: логотип или эмодзи станции
                     const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
-                    // Мелкий текст только если это день рождения
-                    const birthdayNote = st.isBirthday ? `<span class="station-note">🎂 День народження</span>` : '';
+                    const birthdayBar = st.isBirthday ? `<div class="station-birthday">День народження</div>` : '';
                     
                     html += `<article class="station" data-station="${st.station}">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     const displayName = st.station.replace(/-/g, ' ');
-                    html += `<div class="station-name">${displayName}${birthdayNote}</div>`;
+                    html += `<div class="station-name">${displayName}</div>`;
+                    html += birthdayBar;
                     html += `</article>`;
                 });
                 html += `</div>`;
@@ -1361,13 +1397,14 @@
                 if (eventRow) {
                     const style = getStationStyle(eventRow.station);
                     const logoHtml = eventRow.logo ? `<img src="${eventRow.logo}" alt="${eventRow.station}">` : style.emoji;
-                    const birthdayNote = eventRow.isBirthday ? `<span class="station-note">🎂 День народження</span>` : '';
+                    const birthdayBar = eventRow.isBirthday ? `<div class="station-birthday">День народження</div>` : '';
                     
                     html += `<div class="grid-stations">`;
                     html += `<article class="station wide" data-station="${eventRow.station}">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     const displayName = eventRow.station.replace(/-/g, ' ');
-                    html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span>${birthdayNote}</div>`;
+                    html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
+                    html += birthdayBar;
                     html += `</article>`;
                     html += `</div>`;
                 }
