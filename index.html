@@ -208,6 +208,17 @@
             font-size: 12px;
             font-weight: 1000;
         }
+        /* Мелкий текст для дня рождения */
+        .station-note {
+            display: block;
+            font-size: 8px;
+            font-weight: 700;
+            color: #e91e63;
+            text-transform: none;
+            margin-top: 2px;
+            line-height: 1.1;
+            letter-spacing: 0.2px;
+        }
         .badge-default {
             background: #f0f0f0;
         }
@@ -219,6 +230,9 @@
         }
         .badge-default-4 {
             background: #e8fce8;
+        }
+        .badge.dr {
+            background: #ffe4ec;
         }
         .loading-state {
             text-align: center;
@@ -700,6 +714,9 @@
             .wide .station-name {
                 font-size: 14px;
             }
+            .station-note {
+                font-size: 7px;
+            }
             .badge {
                 width: 50px;
                 height: 50px;
@@ -832,6 +849,9 @@
             }
             .wide .station-name {
                 font-size: 12px;
+            }
+            .station-note {
+                font-size: 6px;
             }
             .badge {
                 width: 42px;
@@ -1325,11 +1345,15 @@
                 html += `<div class="grid-stations">`;
                 stationItems.forEach(st => {
                     const style = getStationStyle(st.station);
+                    // Бейдж НЕ меняем: логотип или эмодзи станции
                     const logoHtml = st.logo ? `<img src="${st.logo}" alt="${st.station}">` : style.emoji;
+                    // Мелкий текст только если это день рождения
+                    const birthdayNote = st.isBirthday ? `<span class="station-note">🎂 День народження</span>` : '';
+                    
                     html += `<article class="station" data-station="${st.station}">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     const displayName = st.station.replace(/-/g, ' ');
-                    html += `<div class="station-name">${displayName}</div>`;
+                    html += `<div class="station-name">${displayName}${birthdayNote}</div>`;
                     html += `</article>`;
                 });
                 html += `</div>`;
@@ -1337,11 +1361,13 @@
                 if (eventRow) {
                     const style = getStationStyle(eventRow.station);
                     const logoHtml = eventRow.logo ? `<img src="${eventRow.logo}" alt="${eventRow.station}">` : style.emoji;
+                    const birthdayNote = eventRow.isBirthday ? `<span class="station-note">🎂 День народження</span>` : '';
+                    
                     html += `<div class="grid-stations">`;
                     html += `<article class="station wide" data-station="${eventRow.station}">`;
                     html += `<div class="badge ${style.cls}">${logoHtml}</div>`;
                     const displayName = eventRow.station.replace(/-/g, ' ');
-                    html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span></div>`;
+                    html += `<div class="station-name">${displayName}<span class="station-time">${eventRow.timeFrom}-${eventRow.timeTo}</span>${birthdayNote}</div>`;
                     html += `</article>`;
                     html += `</div>`;
                 }
